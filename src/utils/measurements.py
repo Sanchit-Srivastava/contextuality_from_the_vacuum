@@ -20,4 +20,20 @@ def projector(c, a, b):
       op = operators.pauli(p * A[c], q * B[c])
       term = w ** (-exponent) * op
       P += term
-      return P / 8
+  return P / 8
+  
+# Precompute all projectors: shape (40, 3, 3)
+projectors = [[[projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
+
+# Function to calculate measurement statistics for all contexts
+def empirical_model(rho):
+    """
+    Calculate the vectorized empirical model for the given state rho.
+    """
+    E = np.zeros(360)
+    for c in range(40):
+        for a in range(3):
+            for b in range(3):
+                P = projectors[c][a][b]
+                E[9*c + (3 * a + b)] = np.trace(rho @ P).real
+    return E
