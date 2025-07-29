@@ -1,20 +1,21 @@
 """Generating the incidence matrix for all possible global assignments"""
 
 import numpy as np
+from scipy.sparse import lil_matrix
 
 from utils.contexts import A, B
 from utils.ternary import to_ternary
 
+rows, cols = 360, 81
+M_sparse = lil_matrix((rows, cols), dtype=int)
+
 M = []
-for g in range(80):
-    G = []
+for g in range(cols):
+    lam = to_ternary(g)
     for c in range(40):
-        lambda = to_ternary(g)
-        a = np.dot(A[c], lambda)
-        b = np.dot(B[c], lambda)
-        gc = np.zeros((8,1))
-        gc[3*a + b] = 1
-        G.append(gc)
-        G_column = np.vstack(G)
-    M.append(G_column)
-M = np.hstack(M)
+        a = np.dot(A[c], lam)
+        b = np.dot(B[c], lam)
+        row_index = 9*c + (3 * a + b)
+        M_sparse[row_index, g] = 1
+
+M = M_sparse.tocsr()
