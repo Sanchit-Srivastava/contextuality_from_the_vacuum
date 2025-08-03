@@ -14,13 +14,13 @@ def projector(c, a, b):
   P = 0
   for p in range(3):
     for q in range(3):
-      if p == 0 and q == 0:
-        continue
+      # if p == 0 and q == 0:
+      #   continue
       exponent = (p * a + q * b) % 3
-      op = operators.pauli(p * A[c], q * B[c])
+      op = operators.pauli(p * A[c] + q * B[c])
       term = w ** (-exponent) * op
       P += term
-  return P / 8
+  return P / 9
   
 # Precompute all projectors: shape (40, 3, 3)
 projectors = [[[projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
@@ -34,6 +34,11 @@ def empirical_model(rho):
     for c in range(40):
         for a in range(3):
             for b in range(3):
+                # if a == 0 and b == 0:
+                #     continue
+                # Get the projector for context c, measurement a, b
                 P = projectors[c][a][b]
                 E[9*c + (3 * a + b)] = np.trace(rho @ P).real
+        if np.sum(E[9*c:9*c+9]) > 1:
+            print("Sum of entries for context", c, ":", np.sum(E[9*c:9*c+9]))
     return E

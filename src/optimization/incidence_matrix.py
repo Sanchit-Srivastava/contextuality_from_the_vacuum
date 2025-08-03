@@ -13,8 +13,8 @@ M = []
 for g in range(cols):
     lam = to_ternary(g)
     for c in range(40):
-        a = np.dot(A[c], lam)
-        b = np.dot(B[c], lam)
+        a = np.dot(A[c], lam) % 3
+        b = np.dot(B[c], lam) % 3
         row_index = 9*c + (3 * a + b)
         M_sparse[row_index, g] = 1
 

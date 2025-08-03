@@ -13,3 +13,6 @@ def pauli(A):
     """Generate the Heisenberg-Weyl operator from symplectic vector."""
     phase = w**(2 * A[0] * A[1] + 2 * A[2] * A[3])
     return phase * np.kron(np.linalg.matrix_power(X, A[0]) @ np.linalg.matrix_power(Z, A[1]), np.linalg.matrix_power(X, A[2]) @ np.linalg.matrix_power(Z, A[3]))
+
+
+ 
