@@ -11,7 +11,19 @@ def commute_check(A, B):
 
 
 def check_context_commutators():
-    """Check if each pair A, B in contexts commute."""
+    """
+    Checks whether each corresponding pair of context operators in A and B commute.
+    This function imports two lists of operators, A and B, from the module utils.contexts.
+    For each index in the lists, it uses the function `commute_check` to determine if the operator
+    pair (A[c], B[c]) commutes. The function keeps a count of commuting contexts and collects the
+    1-based indices of non-commuting context pairs.
+    After processing all available contexts, the function prints:
+        - The total number of contexts.
+        - The number of associated context pairs that commute.
+        - The number of context pairs that do not commute.
+        - The specific indices of non-commuting contexts (if any), along with a warning message.
+    If all context pairs commute, a confirmation message is printed instead.
+    """
     from utils.contexts import A, B
     
     print("\n" + "="*60)
