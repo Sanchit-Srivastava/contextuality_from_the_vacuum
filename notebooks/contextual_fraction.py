@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# # Contextual fraction of 2-qudit states
+# # Contextual fraction of 2-qutrit states
 # ## Introduction
 # This notebook provides an overview of the contextual fraction of 2-qutrit states with respect to Heisenberg-Weyl operators.
 #
