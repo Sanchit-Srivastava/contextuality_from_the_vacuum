@@ -3,5 +3,15 @@
         "qutrit",
         "symplectic",
         "Weyl"
+    ],
+    "jupytext.formats": "ipynb,py:percent",
+    "jupytext.sync.enable": true,
+    "jupytext.sync.onSave": true,
+    "filewatcher.commands": [
+        {
+            "match": "**/notebooks/contextual_fraction.py",
+            "cmd": "/Users/sanchitsrivastava/Work_stuff/2_qudit_contextual_fraction/.venv/bin/python -m jupytext --sync notebooks/contextual_fraction.py",
+            "event": "onFileChange"
+        }
     ]
 }
