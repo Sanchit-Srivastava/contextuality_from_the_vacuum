@@ -1,4 +1,5 @@
-"""Contexts for two qutrit Heisenberg-Weyl operators defined in terms of their symplectic vectors"""
+"""Contexts for two qutrit Heisenberg-Weyl operators 
+    -defined in terms of their symplectic vectors"""
 import numpy as np
 
 # Each context is specified by two symplectic vectors A and B.

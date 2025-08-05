@@ -16,11 +16,12 @@
 # %% [markdown]
 # # Contextual fraction of 2-qutrit states
 # ## Introduction
-# This notebook provides an overview of the contextual fraction of 2-qutrit states with respect to Heisenberg-Weyl operators.
+# This notebook provides an overview of the contextual fraction of 2-qutrit 
+# states with respect to Heisenberg-Weyl operators.
 #
-#
-#
-# > This notebook is structured to explain the key concepts and functions used in the project. In each section, the source code of relevant functions is displayed using `inspect.getsource`.
+# > This notebook is structured to explain the key concepts and functions used 
+# > in the project. In each section, the source code of relevant functions is 
+# > displayed using `inspect.getsource`.
 
 # %% [markdown]
 #
@@ -32,35 +33,48 @@
 #
 # 1. Introduction:
 #    - Provides an overview of the project.
-#    - Explains the structure of the source code and its pairing with Jupyter notebooks.
+#    - Explains the structure of the source code and its pairing with 
+#      Jupyter notebooks.
 #
 # 2. Heisenberg-Weyl Operators:
-#    - Introduces the definition of Heisenberg-Weyl operators for 2-qutrit states.
+#    - Introduces the definition of Heisenberg-Weyl operators for 
+#      2-qutrit states.
 #    - Displays the source code for the operators module.
 #
 # 3. Qudit Contexts:
-#    - Describes maximal commuting sets (contexts) of the Heisenberg-Weyl operators.
+#    - Describes maximal commuting sets (contexts) of the Heisenberg-Weyl 
+#      operators.
 #    - Shows the source code of the contexts module.
 #
 # 4. Projector and Empirical Model:
-#    - Explains how projectors and empirical models are constructed using spectral decompositions.
+#    - Explains how projectors and empirical models are constructed using 
+#      spectral decompositions.
 #    - Prints the source code for the projector and empirical_model functions.
 #
 # 5. Noncontextual and Contextual Fraction:
-#    - Discusses the concept of global (noncontextual) assignments and the decomposition of empirical models.
+#    - Discusses the concept of global (noncontextual) assignments and the 
+#      decomposition of empirical models.
 #
 # 6. Optimization Modules:
-#    - Introduces the incidence matrix and the linear programming formulation used to compute the contextual fraction.
-#    - Displays the source code for both the incidence_matrix and lin_prog modules.
+#    - Introduces the incidence matrix and the linear programming formulation 
+#      used to compute the contextual fraction.
+#    - Displays the source code for both the incidence_matrix and lin_prog 
+#      modules.
 #
 # 7. Example Usage:
-#    - Demonstrates how to compute the contextual fraction for various quantum states.
-#    - Includes a main function that runs through these computations and prints a summary.
+#    - Demonstrates how to compute the contextual fraction for various 
+#      quantum states.
+#    - Includes a main function that runs through these computations and 
+#      prints a summary.
 #
+# > **Note:** This notebook is paired with a Python script 
+# > `notebooks/contextual_fraction.py` using 
+# > [Jupytext](https://jupytext.readthedocs.io/en/latest/). Changes made in 
+# > either file will be synchronized automatically. The Python script can be 
+# > run directly as a standalone script.
 #
-# > **Note:** This notebook is paired with a Python script `notebooks/contextual_fraction.py` using [Jupytext](https://jupytext.readthedocs.io/en/latest/). Changes made in either file will be synchronized automatically. The Python script can be run directly as a standalone script.
-#
-# The source code for this project is structured as follows (see `README.md` for more details):
+# The source code for this project is structured as follows 
+# (see `README.md` for more details):
 # ```
 # 2_qudit_contextual_fraction/
 # |--src/                          # Source code modules
@@ -75,7 +89,7 @@
 # |       |-- incidence_matrix.py      # Global assignment constraint matrix
 # |       |-- lin_prog.py              # Contextual fraction calculation
 # |-- notebooks/                    # Jupyter notebooks
-# |   |-- contextual_fraction.ipynb    # Main analysis notebook --> You are here!
+# |   |-- contextual_fraction.ipynb    # Main analysis notebook --> Here!
 # |   |-- contextual_fraction.py       # Jupytext paired Python file
 # |-- main.py                          # Main execution script
 # |-- example.py                       # Simple usage examples
@@ -97,20 +111,23 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 # %% [markdown]
-#
 # ## Heisenberg-Weyl operators
 # For odd prime dimension $d$, the single qudit Pauli operators are defined by
 #
 # \begin{equation*}
-#  X \ket{j} = \ket{j + 1} \quad \text{and} \quad Z \ket{j} = \omega^j \ket{j}
+#  X \left|j\right> = \left|j + 1\right> \quad \text{and} \quad 
+#  Z \left|j\right> = \omega^j \left|j\right>
 # \end{equation*}
 #
-# where $\omega = e^{2\pi i/d}$ and the addition is modulo $d$. The Heisenberg-Weyl group is generated by the Pauli operators $X$ and $Z$. 
+# where $\omega = e^{2\pi i/d}$ and the addition is modulo $d$. The 
+# Heisenberg-Weyl group is generated by the Pauli operators $X$ and $Z$. 
 #
-# >An element of the 2-qudit Heisenberg-Weyl group is specified by a symplectic vector $v=[p_1,q_1,p_2,q_2] \in \mathbb{Z}_3^4$: 
+# >An element of the 2-qudit Heisenberg-Weyl group is specified by a 
+# >symplectic vector $v=[p_1,q_1,p_2,q_2] \in \mathbb{Z}_3^4$: 
 # >\begin{equation*}
-#  W(v) = W([p_1,q_1,p_2,q_2]) = \omega^{2(p_1q_q+p_2q_2)}X^{p_1} Z^{q_1} \otimes X^{p_2}Z^{q_2}
-# \end{equation*}
+# > W(v) = W([p_1,q_1,p_2,q_2]) = \omega^{2(p_1q_q+p_2q_2)}X^{p_1} Z^{q_1} 
+# > \otimes X^{p_2}Z^{q_2}
+# >\end{equation*}
 #
 # where we have chosen the phase factor such that
 #
@@ -118,7 +135,8 @@ if src_path not in sys.path:
 #  W(v)W(v') = W(v + v'). 
 # \end{equation*}
 #
-# For a given vector $v \in \mathbb{Z}_3^4$, we can generate the corresponding Heisenberg-Weyl operator using the function `src/utils.operators.pauli`. 
+# For a given vector $v \in \mathbb{Z}_3^4$, we can generate the corresponding 
+# Heisenberg-Weyl operator using the function `src/utils.operators.pauli`.
 
 # %% show source
 # Printing the source code of the operators module
@@ -127,19 +145,31 @@ Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 
 # %% [markdown]
 # ## Qudit contexts
-# A context is a set of pairwise commuting observables. We want to identify the maximal contexts of 2-qudit Heisenberg-Weyl operators. 
-# The operators $W(v)$ and $W(v')$ commute if the vectors $v$ and $v'$ are orthogonal with respect to the symplectic inner product:
+# A context is a set of pairwise commuting observables. We want to identify 
+# the maximal contexts of 2-qudit Heisenberg-Weyl operators. 
+#
+# The operators $W(v)$ and $W(v')$ commute if the vectors $v$ and $v'$ are 
+# orthogonal with respect to the symplectic inner product:
 # \begin{equation*}
 #   [v, v'] = \sum_{i=1}^n (p_i q'_i - p'_i q_i) = 0. 
 # \end{equation*}
 #
-# To identify maximal contexts, we need to identify maximal isotropic subspaces (i.e, sets of pairwise orthogonal vectors) of the symplectic vector space $\mathbb{Z}_3^4$.
-# Note that if $[v_1, v_2] = 0$, then $[(pv_1 + qv_2), (rv_1 + sv_2)] = 0$ for all $p,q,r,s \in \mathbb{Z}_3$. Hence, each context $C \in \mathcal{C}$ can be generated by $2$ commuting operators:
+# To identify maximal contexts, we need to identify maximal isotropic 
+# subspaces (i.e, sets of pairwise orthogonal vectors) of the symplectic 
+# vector space $\mathbb{Z}_3^4$.
+#
+# Note that if $[v_1, v_2] = 0$, then $[(pv_1 + qv_2), (rv_1 + sv_2)] = 0$ 
+# for all $p,q,r,s \in \mathbb{Z}_3$. Hence, each context $C \in \mathcal{C}$ 
+# can be generated by $2$ commuting operators:
 # \begin{align*}
 #   \nonumber  && C  = \langle W(v_1), W(v_2) \rangle \\ 
 #    \nonumber &&= \{W(pv_1 + qv_2) \mid \forall p,q\in \mathbb{Z}_3 \}.
 # \end{align*}
-# where $[v_1, v_2] = 0$ and $v_2 \neq zv_1$ for any $z \in \mathbb{Z}_3$ (i.e, $v_1$ and $v_2$ are linearly independent). Each context contains $3^2 = 9$ operators (one is the identity operator). There are 40 such contexts for the 2-qutrit Heisenberg-Weyl group. The generators of the contexts are given by the symplectic vectors in `src/utils/contexts.py`.
+# where $[v_1, v_2] = 0$ and $v_2 \neq zv_1$ for any $z \in \mathbb{Z}_3$ 
+# (i.e, $v_1$ and $v_2$ are linearly independent). Each context contains 
+# $3^2 = 9$ operators (one is the identity operator). There are 40 such 
+# contexts for the 2-qutrit Heisenberg-Weyl group. The generators of the 
+# contexts are given by the symplectic vectors in `src/utils/contexts.py`.
 
 # %% show source
 # Printing the source code of the contexts module
@@ -147,15 +177,22 @@ import utils.contexts as contexts
 Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 # 
 # %% [markdown]
-# With the pairs of orthogonal vectors defined in `src/utils/contexts.py`, any context can be generated of the form: 
+# With the pairs of orthogonal vectors defined in `src/utils/contexts.py`, any 
+# context can be generated of the form: 
 # \begin{equation*}
-#   C = \langle A(c), B(c) \rangle = \{W(pA(c) + qB(c)) \mid \forall p,q\in \mathbb{Z}_3 \}
+#   C = \langle A(c), B(c) \rangle = \{W(pA(c) + qB(c)) \mid \forall p,q\in 
+#   \mathbb{Z}_3 \}
 # \end{equation*}
 #
-# `src/utils.commutators.check_context_commutators` can be used to verify that for all contexts, the operators in the context pairwise commute.
+# `src/utils.commutators.check_context_commutators` can be used to verify 
+# that for all contexts, the operators in the context pairwise commute.
 #
 # ## Empirical model
-# To compute the contextual fraction, we need the measurement statistics of joint measurements of each context. For a given quantum state $\rho$, the empirical model is the measurement statistics of joint outcomes indexed by the contexts. For example, for the CHSH scenario, a possible empirical model is
+# To compute the contextual fraction, we need the measurement statistics of 
+# joint measurements of each context. For a given quantum state $\rho$, the 
+# empirical model is the measurement statistics of joint outcomes indexed by 
+# the contexts. For example, for the CHSH scenario, a possible empirical 
+# model is
 # \begin{equation*}
 #      \begin{array}{c|cccc} 
 #          & (0,0) & (1,0) & (0,1) & (1,1) \\
@@ -165,44 +202,61 @@ Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 #          \left(A^{\prime}, B^{\prime}\right) & 1 / 8 & 3 / 8 & 3 / 8 & 1 / 8
 #      \end{array}
 # \end{equation*}
-# Each row corresponds to a context, and each column corresponds to an even - a joint outcome of measurement of all the operators in the context.
+# Each row corresponds to a context, and each column corresponds to an event - 
+# a joint outcome of measurement of all the operators in the context.
 #
-#
-# For 2-qutrit Heisenberg-Weyl operators, the outcome of a measurement is of the form $\omega^a$ where $\omega = e^{2\pi i / 3}$ and $a \in \mathbb{Z}_3$. 
+# For 2-qutrit Heisenberg-Weyl operators, the outcome of a measurement is of 
+# the form $\omega^a$ where $\omega = e^{2\pi i / 3}$ and $a \in \mathbb{Z}_3$. 
 # We label the outcome $\omega^a$ as $a$. 
-# Note that while there are 8 operators in each context (ignoring the identity operator), there are **not** $3^8 = 6561$ possible outcomes. 
+#
+# Note that while there are 8 operators in each context (ignoring the identity 
+# operator), there are **not** $3^8 = 6561$ possible outcomes. 
 # The operators of a context share a common eigenbasis. 
 #
+# >For 2-qutrits, there are 9 common eigenvectors, and hence there are only 
+# >9 possible outcomes for each context. 
+# >This can also be seen from the fact that each context is generated by 
+# >2 operators, and each operator has 3 possible outcomes. 
+# >The outcomes of the two generators completely determine the outcomes of all 
+# >the other operators in the context.
+# >Hence, we can label the outcomes of a context by $(a,b)$ where $a,b \in 
+# >\mathbb{Z}_3$ are the outcomes of the two generators of the context. 
 #
-# >For 2-qutrits, there are 9 common eigenvectors, and hence there are only 9 possible outcomes for each context. 
-# This can also be seen from the fact that each context is generated by 2 operators, and each operator has 3 possible outcomes. 
-# The outcomes of the two generators completely determine the outcomes of all the other operators in the context.
-# Hence, we can label the outcomes of a context by $(a,b)$ where $a,b \in \mathbb{Z}_3$ are the outcomes of the two generators of the context. 
+# For the joint outcome $(a,b)$, the outcome of any operator $W(pA + qB)$ in 
+# the context is $\omega^{ap + bq}$.
 #
-# For the joint outcome $(a,b)$, the outcome of any operator $W(pA + qB)$ in the context is $\omega^{ap + bq}$.
-# To compute the probabilities of the joint outcomes, we need to construct projectors onto the common eigenvectors of the operators for each context.
-#  This can be done as follows. 
+# To compute the probabilities of the joint outcomes, we need to construct 
+# projectors onto the common eigenvectors of the operators for each context.
+# This can be done as follows. 
+#
 # By spectral decomposition, we can write any Heisenberg-Weyl $W$ as 
 # \begin{equation*}
 #   W = \sum_{a \in \mathbb{Z}_3} \omega^a \Pi_W^a
 # \end{equation*}
-# where $\Pi_W^a$ is the projector onto the eigenspace of $W$ with eigenvalue $\omega^a$. 
+# where $\Pi_W^a$ is the projector onto the eigenspace of $W$ with eigenvalue 
+# $\omega^a$. 
+#
 # From the above, we get the form of the projector $\Pi_W^a$ as
 # \begin{equation*}
 #   \Pi_W^a = \frac{1}{3} \sum_{j\in \mathbb{Z}_3} \omega^{-aj} W^j
 # \end{equation*}
-# With this, we can construct the projectors for the joint outcomes for a context:
+#
+# With this, we can construct the projectors for the joint outcomes for a 
+# context:
 # \begin{equation*}
 #   \Pi_C^r = \frac{1}{|C|} \sum_{W \in C} \omega^{-r_W} W
 # \end{equation*}
 # where $r_W$ is the outcome of the operator $W$ for the joint outcome $r$.
 #
-# >Hence, for context $C = \langle A(c), B(c) \rangle$, the projector onto the joint outcome $(a,b)$ is given by
-# \begin{equation*}
-#   \Pi_C^{(a,b)} = \frac{1}{9} \sum_{p,q \in \mathbb{Z}_3} \omega^{-ap - bq} W(pA(c) + qB(c))
-# \end{equation*}
+# >Hence, for context $C = \langle A(c), B(c) \rangle$, the projector onto 
+# >the joint outcome $(a,b)$ is given by
+# >\begin{equation*}
+# >  \Pi_C^{(a,b)} = \frac{1}{9} \sum_{p,q \in \mathbb{Z}_3} \omega^{-ap - bq} 
+# >  W(pA(c) + qB(c))
+# >\end{equation*}
 #
-# The projector for the context $c$ and the joint outcome $(a,b)$ can be computed using the function `src/utils.measurements.projector`:
+# The projector for the context $c$ and the joint outcome $(a,b)$ can be 
+# computed using the function `src/utils.measurements.projector`:
 
 # %% show source
 # Printing the source code of the projector function
@@ -210,10 +264,22 @@ from utils.measurements import projector
 Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 
 # %% [markdown]
-# With the projectors defined, we can compute the empirical model for a quantum state $\rho$. We generate the empirical model in a vectorized form, i.e., the empirical model is a vector of probabilities where the first $9$ entries correspond to the probabilities of the joint outcomes of the first context, the next $9$ entries correspond to the probabilities of the joint outcomes of the second context, and so on. 
+# With the projectors defined, we can compute the empirical model for a 
+# quantum state $\rho$. We generate the empirical model in a vectorized form, 
+# i.e., the empirical model is a vector of probabilities where the first $9$ 
+# entries correspond to the probabilities of the joint outcomes of the first 
+# context, the next $9$ entries correspond to the probabilities of the joint 
+# outcomes of the second context, and so on. 
 #
-# For the outcome $(a,b)$, we can interpret $(a,b)$ as the ternary representation of the index of the outcome.
-# Hence, within a given context $c$, the outcome $(a,b)$ corresponds to the entry at index $[9c + (3 a + b)]$ in the empirical model vector. For 40 contexts, the empirical model is a vector of length $9 \times 40 = 360$. The empirical model for a given state can be computed using the function `src/utils.measurements.empirical_model`:
+# For the outcome $(a,b)$, we can interpret $(a,b)$ as the ternary 
+# representation of the index of the outcome.
+#
+# Hence, within a given context $c$, the outcome $(a,b)$ corresponds to the 
+# entry at index $[9c + (3 a + b)]$ in the empirical model vector. For 40 
+# contexts, the empirical model is a vector of length $9 \times 40 = 360$. 
+#
+# The empirical model for a given state can be computed using the function 
+# `src/utils.measurements.empirical_model`:
 
 # %% show source
 # Printing the source code of the empirical_model function
@@ -222,9 +288,12 @@ Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 
 # %% [markdown]
 # ## (Non)contextual fraction
-# Let's say we have a global value assignment $g$ for every Heisenberg-Weyl operator. 
-# That is, for each operator $W$, we know the measurement outcome $r_W = g(W) \in \mathbb{Z}_3$ deterministically. 
-# In the empirical model generated by this global assignment $g$, the probability of the joint outcome $r$ for a context $C$ is given by
+# Let's say we have a global value assignment $g$ for every Heisenberg-Weyl 
+# operator. That is, for each operator $W$, we know the measurement outcome 
+# $r_W = g(W) \in \mathbb{Z}_3$ deterministically. 
+#
+# In the empirical model generated by this global assignment $g$, the 
+# probability of the joint outcome $r$ for a context $C$ is given by
 # \begin{equation*}
 #   p_C^g(r) = \begin{cases}
 #     1 & \text{if } r_W = g(W) \text{ for all } W \in C \\
@@ -232,7 +301,9 @@ Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 #   \end{cases}
 # \end{equation*}
 #
-# That is, each context has the probability $1$ for the joint outcome that is consistent with the global assignment $g$ and probability $0$ for all other joint outcomes.
+# That is, each context has the probability $1$ for the joint outcome that is 
+# consistent with the global assignment $g$ and probability $0$ for all other 
+# joint outcomes.
 #
 # For example, in the CHSH scenario, a global assignment $g$ could be:
 # \begin{equation*}
@@ -249,49 +320,38 @@ Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 #      \end{array}
 # \end{equation*}
 #
-# > A convex combination of empirical models is also a valid empirical model. An empirical model is said to be **noncontextual** if it can be expressed as a convex combination of empirical models generated by global assignments.
+# > A convex combination of empirical models is also a valid empirical model. 
+# > An empirical model is said to be **noncontextual** if it can be expressed 
+# > as a convex combination of empirical models generated by global assignments.
 #
 # Any empirical model e can be decomposed into the form
 # \begin{equation*}
 #   e = \lambda e_{NC} + (1 - \lambda) e'
 # \end{equation*}
-# where $e_{NC}$ is a noncontextual empirical model. Note that this decomposition is not unique. By doing this, we explained a fraction of the events in terms of probabilistic combinations of global assignments.
+# where $e_{NC}$ is a noncontextual empirical model. Note that this 
+# decomposition is not unique. By doing this, we explained a fraction of the 
+# events in terms of probabilistic combinations of global assignments.
 #
-# Consider the convex decomposition where the weight of the noncontextual empirical model is maximized:
+# Consider the convex decomposition where the weight of the noncontextual 
+# empirical model is maximized:
 # \begin{equation*}
 #   e = \lambda_{max} e_{NC} + (1 - \lambda_{max}) e'
 # \end{equation*}
 #
-# For a decomposition of the above form, the 'residual' empirical model $e'$ is (strongly) contextual.
+# For a decomposition of the above form, the 'residual' empirical model $e'$ 
+# is (strongly) contextual.
 #
-# > This $\lambda_{max}$ is called the **noncontextual fraction** $NCF(e)$ of the empirical model $e$, and $1 - \lambda_{max}$ is called the **contextual fraction** $CF(e)$.
+# > This $\lambda_{max}$ is called the **noncontextual fraction** $NCF(e)$ of 
+# > the empirical model $e$, and $1 - \lambda_{max}$ is called the 
+# > **contextual fraction** $CF(e)$.
 #
 # The empirical model $e$ admits the decomposition
 # \begin{equation*}
 #   e = NCFe_{NC} + (1 - NCF)e_{SC}
 # \end{equation*}
 #
-# > An empirical model is said to be **contextual** if its contextual fraction is greater than $0$.
-#
-# ## Linear program for contextual fraction
-# Let $v^e$ be the vectorized form of an empirical model $e$.
-# Let $v^g$ be the vectorized form of an empirical model generated by a global assignment $g$. 
-# We use the following lemma to for the global assignments:
-#
-# > A global noncontextual assignment $g$ for 2-qutrit Heisenberg-Weyl operators which is consistent with a quantum state has to be of the form $g(W(v)) = \lambda \cdot v$ for some $\lambda \in \mathbb{Z}_3^4$.
-#
-# Define the incidence matrix $M$ as the matrix whose columns are the vectorized forms of the empirical models generated by global assignments.
-# \begin{equation*}
-#   M(9c + (3a + b), g) = \begin{cases}
-#     1 & \text{if } g(W(pA(c) + qB(c))) = \omega^{ap + bq} \\ 
-#     0 & \text{otherwise}
-#   \end{cases}
-# \end{equation*}
-#
-# Due to the above lemma, the number of columns in the incidence matrix $M$ is $3^4 = 81$.
-# To specify the global assignment, we can convert the column index to a vector $\lambda \in \mathbb{Z}_3^4$ by expressing it in base 3 using the function `src/utils.ternary.to_ternary`. 
-#
-# The incidence matrix $M$ is generated in `src/optimization.incidence_matrix`:
+# > An empirical model is said to be **contextual** if its contextual fraction 
+# > is greater than $0$.
 
 # %% show source
 # Printing the source code of the incidence_matrix module
@@ -299,10 +359,12 @@ import optimization.incidence_matrix as incidence_matrix
 Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 
 # %% [markdown]
-# Recall that an empirical model $e$ is noncontextual if it can be expressed as a convex combination of empirical models generated by global assignments.
+# Recall that an empirical model $e$ is noncontextual if it can be expressed 
+# as a convex combination of empirical models generated by global assignments.
 #
 # Let $v^e$ be the vectorized form of the empirical model $e$. 
-# If $e$ is noncontextual, it can be expressed as a convex combination of the columns of the incidence matrix $M$.
+# If $e$ is noncontextual, it can be expressed as a convex combination of the 
+# columns of the incidence matrix $M$.
 # This can be stated in terms of the linear equation:
 # \begin{equation*}
 #   v^e = M \cdot d
@@ -313,13 +375,16 @@ Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 # \begin{equation*}
 #   v^e = \lambda(M \cdot d) + (1 - \lambda) v'
 # \end{equation*}
-# where we have written the noncontextual part as a $M \cdot d$ for some $d$. We can absorb the factor $\lambda$ into the vector $d$ and write the above as
+# where we have written the noncontextual part as a $M \cdot d$ for some $d$. 
+# We can absorb the factor $\lambda$ into the vector $d$ and write the above as
 # \begin{equation*}
 #   v^e = M \cdot b + (1 - \lambda) v'
 # \end{equation*}
-# where $b = \lambda d$ is a sub-probability distribution. Note that the sum of the entries of $b$ is $1\cdot b = \lambda$.
+# where $b = \lambda d$ is a sub-probability distribution. Note that the sum 
+# of the entries of $b$ is $1\cdot b = \lambda$.
 #
-# The noncontextual fraction $NCF(e)$ is the maximum value of $\lambda$ such that the above equation holds. We can write this as a linear program:
+# The noncontextual fraction $NCF(e)$ is the maximum value of $\lambda$ such 
+# that the above equation holds. We can write this as a linear program:
 # \begin{align*}
 #   \text{Find } & \quad b \in \mathbb{R}^{81} \\
 #   \text{maximizing } & \quad 1 \cdot b \\
@@ -327,7 +392,9 @@ Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 #   \text{and } & \quad b \geq 0
 # \end{align*}
 #
-# 'src/optimization/lin_prog.py' contains the function `contextual_fraction` which implements this linear program using the `scipy.optimize.linprog` function.
+# 'src/optimization/lin_prog.py' contains the function `contextual_fraction` 
+# which implements this linear program using the `scipy.optimize.linprog` 
+# function.
 
 # %% show source
 # Printing the source code of the lin_prog module
@@ -337,7 +404,8 @@ Markdown(f"```python\n{inspect.getsource(lin_prog)}\n```")
 
 # %% [markdown]
 # ## Example usage
-# In `src/utils/states.py`, we have defined some example quantum states for which we can compute the contextual fraction.
+# In `src/utils/states.py`, we have defined some example quantum states for 
+# which we can compute the contextual fraction.
 # For these states, we get the following contextual fractions:
 
 

@@ -2,26 +2,35 @@
 
 import numpy as np
 
+
 def commute_check(A, B):
     """
     Checks if two operators A and B commute in the context of qudit systems.
-    The commutation is determined by evaluating (A[0] * B[1] - A[1] * B[0] + A[2] * B[3] - A[3] * B[2]) % 3 == 0.
+    The commutation is determined by evaluating 
+    (A[0] * B[1] - A[1] * B[0] + A[2] * B[3] - A[3] * B[2]) % 3 == 0.
     """
-    return (A[0] * B[1] - A[1] * B[0] + A[2] * B[3] - A[3] * B[2]) % 3 == 0 
+    return (A[0] * B[1] - A[1] * B[0] + 
+            A[2] * B[3] - A[3] * B[2]) % 3 == 0
 
 
 def check_context_commutators():
     """
-    Checks whether each corresponding pair of context operators in A and B commute.
-    This function imports two lists of operators, A and B, from the module utils.contexts.
-    For each index in the lists, it uses the function `commute_check` to determine if the operator
-    pair (A[c], B[c]) commutes. The function keeps a count of commuting contexts and collects the
-    1-based indices of non-commuting context pairs.
+    Checks whether each corresponding pair of context operators in A and B 
+    commute.
+    
+    This function imports two lists of operators, A and B, from the module 
+    utils.contexts. For each index in the lists, it uses the function 
+    `commute_check` to determine if the operator pair (A[c], B[c]) commutes. 
+    The function keeps a count of commuting contexts and collects the 1-based 
+    indices of non-commuting context pairs.
+    
     After processing all available contexts, the function prints:
         - The total number of contexts.
         - The number of associated context pairs that commute.
         - The number of context pairs that do not commute.
-        - The specific indices of non-commuting contexts (if any), along with a warning message.
+        - The specific indices of non-commuting contexts (if any), along 
+          with a warning message.
+    
     If all context pairs commute, a confirmation message is printed instead.
     """
     from .contexts import A, B

@@ -1,5 +1,6 @@
 """
-Utility functions for creating and analyzing quantum states for two-qutrit systems.
+Utility functions for creating and analyzing quantum states for 
+two-qutrit systems.
 """
 
 import numpy as np
@@ -7,7 +8,7 @@ from .measurements import empirical_model
 
 
 def create_maximally_mixed_state():
-    """Create a maximally mixed state for two qutrits (9x9 identity matrix / 9)."""
+    """Create a maximally mixed state for two qutrits (9x9 identity/9)."""
     return np.eye(9) / 9
 
 
@@ -31,7 +32,8 @@ def create_maximally_entangled_state():
 
 def create_custom_state(alpha=1/np.sqrt(2), beta=1/np.sqrt(2)):
     """
-    Create a custom superposition state on the first qutrit, product with |0⟩ on second.
+    Create a custom superposition state on the first qutrit, 
+    product with |0⟩ on second.
     |ψ⟩ = (α|0⟩ + β|1⟩) ⊗ |0⟩
     """
     # Normalize coefficients
@@ -52,7 +54,8 @@ def print_state_info(state, name):
     print(f"{'='*50}")
     print(f"Trace: {np.trace(state):.6f}")
     print(f"Hermitian: {np.allclose(state, state.conj().T)}")
-    print(f"Positive semidefinite: {np.all(np.linalg.eigvals(state) >= -1e-10)}")
+    eigenvals = np.linalg.eigvals(state)
+    print(f"Positive semidefinite: {np.all(eigenvals >= -1e-10)}")
     
 
 

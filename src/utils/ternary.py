@@ -1,18 +1,21 @@
 import numpy as np
 
+
 def to_ternary(n: int) -> np.ndarray:
     """
     Convert a number smaller than 81 into its ternary (base 3) representation,
     returned as a 4-digit numpy array (with leading zeros if necessary).
 
     Parameters:
-    n (int): The number to convert. Must be in the range 0 <= n < 81.
+        n (int): The number to convert. Must be in the range 0 <= n < 81.
 
     Returns:
-    np.ndarray: A 4-element numpy array of integers representing the ternary digits.
+        np.ndarray: A 4-element numpy array of integers representing the 
+            ternary digits.
     """
     if not (0 <= n < 81):
-        raise ValueError("Input must be between 0 and 80 (inclusive of 0 and exclusive of 81)")
+        raise ValueError("Input must be between 0 and 80 (inclusive of 0 "
+                        "and exclusive of 81)")
 
     # Special case for 0
     if n == 0:

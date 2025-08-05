@@ -20,8 +20,8 @@ def contextual_fraction(rho):
     # === Linear Program ===
     # maximize 1.b  -> minimize -1.b
     
-    c = -np.ones(M.shape[1])  # objective vector: length 81
-    bounds = [(0, 1)] * M.shape[1]  # b>= 0
+    c = -np.ones(M.shape[1])  # Objective vector: length 81
+    bounds = [(0, 1)] * M.shape[1]  # b >= 0
     
     # Empirical data
     E = empirical_model(rho)
@@ -36,6 +36,6 @@ def contextual_fraction(rho):
     }
     
     if result.success:
-        output['b'] = 1-np.dot(-c,result.x)
+        output['b'] = 1 - np.dot(-c, result.x)
     
     return output
