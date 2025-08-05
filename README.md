@@ -27,7 +27,9 @@ This document provides a comprehensive overview of the project file structure an
 │       ├── incidence_matrix.py      # Global assignment constraint matrix
 │       └── lin_prog.py              # Contextual fraction calculation
 ├── 📂 notebooks/                    # Jupyter notebooks
-│   ├── contextual_fraction.ipynb    # Main analysis notebook
+│   ├── cfraction_code.ipynb         # Standalone notebook
+│   ├── cfraction_code.py            # Jupytext paired Python file
+│   ├── contextual_fraction.ipynb    # Main explanation notebook
 │   ├── contextual_fraction.py       # Jupytext paired Python file
 ├── 📂 .vscode/                      # VS Code configuration
 │   ├── settings.json                # Project settings

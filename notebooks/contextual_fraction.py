@@ -22,6 +22,9 @@
 # > This notebook is structured to explain the key concepts and functions used 
 # > in the project. In each section, the source code of relevant functions is 
 # > displayed using `inspect.getsource`.
+#
+# > This notebook will not run as a standalone notebook. You will need to clone the entire repo to run it. 
+# > Use `src/notebooks/cfraction_code.ipynb` for a standalone notebook with all the functions built in. 
 
 # %% [markdown]
 # ### --- Notebook Structure Summary ---
@@ -74,23 +77,25 @@
 # (see `README.md` for more details):
 # ```
 # 2_qudit_contextual_fraction/
-# |--src/                          # Source code modules
-# |   |-- utils/                    # Utility modules
-# |   |   |-- operators.py             # Heisenberg-Weyl operators
+# |--src/                             # Source code modules
+# |   |-- utils/                      # Utility modules
+# |   |   |-- operators.py            # Heisenberg-Weyl operators
 # |   |   |--contexts.py              # Measurement contexts (40 contexts)
 # |   |   |--commutators.py           # Commutator checking functions
 # |   |   |--measurements.py          # Projectors & empirical models
 # |   |   |--states.py                # Quantum state creation & analysis
 # |   |   |--ternary.py               # Base-3 number conversion
-# |   |-- optimization/             # Linear programming optimization
-# |       |-- incidence_matrix.py      # Global assignment constraint matrix
-# |       |-- lin_prog.py              # Contextual fraction calculation
-# |-- notebooks/                    # Jupyter notebooks
-# |   |-- contextual_fraction.ipynb    # Main analysis notebook --> Here!
-# |   |-- contextual_fraction.py       # Jupytext paired Python file
-# |-- main.py                          # Main execution script
-# |-- example.py                       # Simple usage examples
-# |-- README.md                        # Project documentation
+# |   |-- optimization/               # Linear programming optimization
+# |       |-- incidence_matrix.py     # Global assignment constraint matrix
+# |       |-- lin_prog.py             # Contextual fraction calculation
+# |-- notebooks/                      # Jupyter notebooks
+# |   |-- cfraction_code.ipynb        # Standalone notebook
+# |   |-- cfraction_code.py           # Jupytext paired Python file
+# |   |-- contextual_fraction.ipynb   # Main explanation notebook --> Here!
+# |   |-- contextual_fraction.py      # Jupytext paired Python file
+# |-- main.py                         # Main execution script
+# |-- example.py                      # Simple usage examples
+# |-- README.md                       # Project documentation
 # ```
 
 # %%
