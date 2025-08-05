@@ -14,7 +14,7 @@ def projector(c, a, b):
 
   For each pair (p, q), it performs the following steps:
     - Computes an exponent as (p * a + q * b) modulo 3.
-    - Constructs an operator using a context-dependent combination of A[c] and B[c] via the pauli function.
+    - Constructs an operator using a combination of A[c] and B[c] via the pauli function.
     - Applies a phase factor by raising a global constant w to the power of the negative exponent.
     - Accumulates the resulting operator.
 
@@ -26,7 +26,7 @@ def projector(c, a, b):
       b: Outcome of the second operator B in the context (0, 1, or 2).
 
   Returns:
-      The normalized measurement projector as a summed operator (or possibly a matrix) after dividing by 9.
+      The normalized measurement projector.
   """
   P = 0 # Initialize projector
   for p in range(3):
@@ -49,18 +49,21 @@ def empirical_model(rho):
 
     This function computes the probabilities of joint measurement outcomes for each context.
    
-    For a given context c, it iterates over all pairs of outcomes (a, b) and calculates the probability using the corresponding projector.
-    
-    The computed probabilities are stored in a flattened vector of size 360 (each context contributes 9 entries).
+    For a given context c 
+      - Generates the projectors for all pairs (a, b) in that context.
+      - Computes the probabilities using the Born rule: P(a, b) = Tr(rho @ P(a, b)).
 
-    If the total probability for any context exceeds 1, a warning message is printed to indicate a potential issue with the probabilities for that context.
+    The computed probabilities are stored in a flattened vector of size 360 
+      -(each context contributes 9 entries).
+
+    If the total probability for any context exceeds 1, a warning message is printed.
 
     Parameters:
-      rho (np.ndarray): The density matrix representing the quantum state. It should be compatible with the
-                measurement projectors such that the matrix multiplication and trace operations are valid.
+      rho (np.ndarray): The density matrix representing the quantum state. 
 
     Returns:
-      np.ndarray: A 1D numpy array of length 360, where each segment of 9 elements corresponds to a measurement context.
+      np.ndarray: A 1D numpy array of length 360
+      -each segment of 9 elements corresponds to a measurement context.
     """
     E = np.zeros(360) # Initialize empirical model vector
     for c in range(40): #range over contexts
@@ -68,6 +71,7 @@ def empirical_model(rho):
             for b in range(3):
                 P = projectors[c][a][b] # projectors precomputed using the projector function outside the loop
                 E[9*c + (3 * a + b)] = np.trace(rho @ P).real # Born rule
-        if np.sum(E[9*c:9*c+9]) > 1:
-            print("Sum of entries for context", c, ":", np.sum(E[9*c:9*c+9])) # Warning if sum of probabilities > 1
+        tol = 1e-4  # Tolerance for slight numerical deviations
+        if np.sum(E[9*c:9*c+9]) > 1 + tol:
+            print("Sum of entries for context", c, ":", np.sum(E[9*c:9*c+9]))
     return E
