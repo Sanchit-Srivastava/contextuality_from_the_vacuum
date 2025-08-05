@@ -1,0 +1,5 @@
+numpy
+scipy
+IPython
+# Optional: for Jupytext notebook pairing/sync
+# jupytext
