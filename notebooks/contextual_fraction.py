@@ -14,7 +14,8 @@
 # ---
 
 # %% [markdown]
-# # Introduction
+# # Contextual fraction of 2-qudit states
+# ## Introduction
 # This notebook provides an overview of the contextual fraction of 2-qutrit states with respect to Heisenberg-Weyl operators.
 #
 #
@@ -22,7 +23,7 @@
 # > This notebook is structured to explain the key concepts and functions used in the project. In each section, the source code of relevant functions is displayed using `inspect.getsource`.
 
 # %% [markdown]
-# ## --- Notebook Structure Summary ---
+# ### --- Notebook Structure Summary ---
 #
 # This notebook is organized into several key sections:
 #
@@ -88,10 +89,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 # %% [markdown]
-# # Contextual fraction of 2-qudit states
-#
-# This python project is for computing the contextual fraction of 2-qudit states with respect to Heisenberg Weyl operators. \
-#
 #
 # ## Heisenberg-Weyl operators
 # For odd prime dimension $d$, the single qudit Pauli operators are defined by
