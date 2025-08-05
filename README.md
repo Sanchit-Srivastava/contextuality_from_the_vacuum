@@ -4,6 +4,8 @@ This Python project is for calculating the contextual fraction of 2-qutrit state
 
 > Use the notebook `src/notebooks/contextual_fraction.ipynb` for a detailed overview of how the contextual fraction of a state can be calculated using a linear program, including explanations of the relevant functions in the source code corresponding to each step. 
 
+> Download the notebook `src/notebooks/cfraction_code.ipynb` for a standalone notebook with all the functions builtin. 
+
 # 2-Qutrit Contextual Fraction Project Structure
 
 This document provides a comprehensive overview of the project file structure and the purpose of each component.
@@ -101,7 +103,8 @@ M[360, 81]  # M[row, col] = 1 if assignment col satisfies constraint row
 
 ### **For Research**
 1. **Theory and Analysis**: Use `notebooks/contextual_fraction.ipynb` for detailed exploration
-2. **Quick Examples**: Run `example.py`
+2. **Standalone notebook**: Download `notebooks/cfraction_code.ipynb` as a standalone notebook
+2. **Quick Examples**: Run `example.py` or use `notebooks/cfraction_code.ipynb`
 3. **Batch Processing**: Use `main.py` for analyzing multiple states
 
 ### **For Development**
