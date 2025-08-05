@@ -13,6 +13,9 @@
 #     name: python3
 # ---
 
+# %% [markdown] tags=["{\"tags\": [\"latex_macros\"]}"]
+# <pre> ```latex \usepackage{braket} \newcommand{\ket}[1]{\left|#1\right\rangle} \newcommand{\bra}[1]{\left\langle#1\right|} \newcommand{\braket}[2]{\left\langle#1\middle|#2\right\rangle} \newcommand{\ketbra}[2]{\left|#1\middle\rangle\middle\langle#2\right|} \newcommand{\tr}{\operatorname{Tr}} \newcommand{\id}{\mathbb{I}} ``` </pre>
+
 # %% [markdown]
 # # Contextual fraction of 2-qutrit states
 # ## Introduction
@@ -21,6 +24,9 @@
 #
 #
 # > This notebook is structured to explain the key concepts and functions used in the project. In each section, the source code of relevant functions is displayed using `inspect.getsource`.
+
+# %% [markdown]
+#
 
 # %% [markdown]
 # ### --- Notebook Structure Summary ---
@@ -60,23 +66,23 @@
 # The source code for this project is structured as follows (see `README.md` for more details):
 # ```
 # 2_qudit_contextual_fraction/
-# ├── 📂 src/                          # Source code modules
-# │   ├── 📂 utils/                    # Utility modules
-# │   │   ├── operators.py             # Heisenberg-Weyl operators
-# │   │   ├── contexts.py              # Measurement contexts (40 contexts)
-# │   │   ├── commutators.py           # Commutator checking functions
-# │   │   ├── measurements.py          # Projectors & empirical models
-# │   │   ├── states.py                # Quantum state creation & analysis
-# │   │   └── ternary.py               # Base-3 number conversion
-# │   └── 📂 optimization/             # Linear programming optimization
-# │       ├── incidence_matrix.py      # Global assignment constraint matrix
-# │       └── lin_prog.py              # Contextual fraction calculation
-# ├── 📂 notebooks/                    # Jupyter notebooks
-# │   ├── contextual_fraction.ipynb    # Main analysis notebook --> You are here!
-# │   ├── contextual_fraction.py       # Jupytext paired Python file
-# ├── main.py                          # Main execution script
-# ├── example.py                       # Simple usage examples
-# ├── README.md                        # Project documentation
+# |--src/                          # Source code modules
+# │   |-- utils/                    # Utility modules
+# │   │   |-- operators.py             # Heisenberg-Weyl operators
+# │   │   |--contexts.py              # Measurement contexts (40 contexts)
+# │   │   |--commutators.py           # Commutator checking functions
+# │   │   |--measurements.py          # Projectors & empirical models
+# │   │   |--states.py                # Quantum state creation & analysis
+# │   │   |--ternary.py               # Base-3 number conversion
+# │   |-- optimization/             # Linear programming optimization
+# │       |-- incidence_matrix.py      # Global assignment constraint matrix
+# │       |-- lin_prog.py              # Contextual fraction calculation
+# |-- notebooks/                    # Jupyter notebooks
+# │   |-- contextual_fraction.ipynb    # Main analysis notebook --> You are here!
+# │   |-- contextual_fraction.py       # Jupytext paired Python file
+# |-- main.py                          # Main execution script
+# |-- example.py                       # Simple usage examples
+# |-- README.md                        # Project documentation
 # ```
 
 # %%
