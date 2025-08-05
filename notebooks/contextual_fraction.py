@@ -22,7 +22,7 @@
 # > This notebook is structured to explain the key concepts and functions used in the project. In each section, the source code of relevant functions is displayed using `inspect.getsource`.
 
 # %% [markdown]
-# --- Notebook Structure Summary ---
+# ## --- Notebook Structure Summary ---
 #
 # This notebook is organized into several key sections:
 #
@@ -79,7 +79,6 @@
 # ```
 
 # %%
-# Adding the parent directory to sys.path so 'src' can be imported
 import sys
 import inspect
 from IPython.display import Markdown
@@ -114,7 +113,7 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 #  W(v)W(v') = W(v + v'). 
 # \end{equation*}
 #
-# For a given vector $v \in \mathbb{Z}_3^4$, we can generate the corresponding Heisenberg-Weyl operator using the function `src/utils/operators.pauli`. 
+# For a given vector $v \in \mathbb{Z}_3^4$, we can generate the corresponding Heisenberg-Weyl operator using the function `src/utils.operators.pauli`. 
 
 # %% show source
 # Printing the source code of the operators module
@@ -141,14 +140,14 @@ Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 # Printing the source code of the contexts module
 import src.utils.contexts as contexts
 Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
-
+# 
 # %% [markdown]
 # With the pairs of orthogonal vectors defined in `src/utils/contexts.py`, any context can be generated of the form: 
 # \begin{equation*}
 #   C = \langle A(c), B(c) \rangle = \{W(pA(c) + qB(c)) \mid \forall p,q\in \mathbb{Z}_3 \}
 # \end{equation*}
 #
-# We can check whether the observables in a context commute using the function `src/utils.commutators.check_context_commutators`.
+# `src/utils.commutators.check_context_commutators` can be used to verify that for all contexts, the operators in the context pairwise commute.
 #
 # ## Empirical model
 # To compute the contextual fraction, we need the measurement statistics of joint measurements of each context. For a given quantum state $\rho$, the empirical model is the measurement statistics of joint outcomes indexed by the contexts. For example, for the CHSH scenario, a possible empirical model is
@@ -209,7 +208,7 @@ Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 # With the projectors defined, we can compute the empirical model for a quantum state $\rho$. We generate the empirical model in a vectorized form, i.e., the empirical model is a vector of probabilities where the first $9$ entries correspond to the probabilities of the joint outcomes of the first context, the next $9$ entries correspond to the probabilities of the joint outcomes of the second context, and so on. 
 #
 # For the outcome $(a,b)$, we can interpret $(a,b)$ as the ternary representation of the index of the outcome.
-# Hence,within a given context $c$, the outcome $(a,b)$ corresponds to the entry at index $[9c + (3 a + b)]$ in the empirical model vector. For 40 contexts, the empirical model is a vector of length $9 \times 40 = 360$. The empirical model for a given state can be computed using the function `src/utils.measurements.empirical_model`:
+# Hence, within a given context $c$, the outcome $(a,b)$ corresponds to the entry at index $[9c + (3 a + b)]$ in the empirical model vector. For 40 contexts, the empirical model is a vector of length $9 \times 40 = 360$. The empirical model for a given state can be computed using the function `src/utils.measurements.empirical_model`:
 
 # %% show source
 # Printing the source code of the empirical_model function
