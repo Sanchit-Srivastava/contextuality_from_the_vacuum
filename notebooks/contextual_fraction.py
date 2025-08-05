@@ -24,9 +24,6 @@
 # > displayed using `inspect.getsource`.
 
 # %% [markdown]
-#
-
-# %% [markdown]
 # ### --- Notebook Structure Summary ---
 #
 # This notebook is organized into several key sections:
