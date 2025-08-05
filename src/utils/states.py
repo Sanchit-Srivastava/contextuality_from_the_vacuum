@@ -3,7 +3,7 @@ Utility functions for creating and analyzing quantum states for two-qutrit syste
 """
 
 import numpy as np
-from utils.measurements import empirical_model
+from .measurements import empirical_model
 
 
 def create_maximally_mixed_state():

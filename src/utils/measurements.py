@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from utils import operators
-from utils.contexts import A, B
+from . import operators
+from .contexts import A, B
 
 w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 

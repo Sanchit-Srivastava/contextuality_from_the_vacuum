@@ -13,9 +13,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] tags=["{\"tags\": [\"latex_macros\"]}"]
-# <pre> ```latex \usepackage{braket} \newcommand{\ket}[1]{\left|#1\right\rangle} \newcommand{\bra}[1]{\left\langle#1\right|} \newcommand{\braket}[2]{\left\langle#1\middle|#2\right\rangle} \newcommand{\ketbra}[2]{\left|#1\middle\rangle\middle\langle#2\right|} \newcommand{\tr}{\operatorname{Tr}} \newcommand{\id}{\mathbb{I}} ``` </pre>
-
 # %% [markdown]
 # # Contextual fraction of 2-qutrit states
 # ## Introduction
@@ -67,19 +64,19 @@
 # ```
 # 2_qudit_contextual_fraction/
 # |--src/                          # Source code modules
-# │   |-- utils/                    # Utility modules
-# │   │   |-- operators.py             # Heisenberg-Weyl operators
-# │   │   |--contexts.py              # Measurement contexts (40 contexts)
-# │   │   |--commutators.py           # Commutator checking functions
-# │   │   |--measurements.py          # Projectors & empirical models
-# │   │   |--states.py                # Quantum state creation & analysis
-# │   │   |--ternary.py               # Base-3 number conversion
-# │   |-- optimization/             # Linear programming optimization
-# │       |-- incidence_matrix.py      # Global assignment constraint matrix
-# │       |-- lin_prog.py              # Contextual fraction calculation
+# |   |-- utils/                    # Utility modules
+# |   |   |-- operators.py             # Heisenberg-Weyl operators
+# |   |   |--contexts.py              # Measurement contexts (40 contexts)
+# |   |   |--commutators.py           # Commutator checking functions
+# |   |   |--measurements.py          # Projectors & empirical models
+# |   |   |--states.py                # Quantum state creation & analysis
+# |   |   |--ternary.py               # Base-3 number conversion
+# |   |-- optimization/             # Linear programming optimization
+# |       |-- incidence_matrix.py      # Global assignment constraint matrix
+# |       |-- lin_prog.py              # Contextual fraction calculation
 # |-- notebooks/                    # Jupyter notebooks
-# │   |-- contextual_fraction.ipynb    # Main analysis notebook --> You are here!
-# │   |-- contextual_fraction.py       # Jupytext paired Python file
+# |   |-- contextual_fraction.ipynb    # Main analysis notebook --> You are here!
+# |   |-- contextual_fraction.py       # Jupytext paired Python file
 # |-- main.py                          # Main execution script
 # |-- example.py                       # Simple usage examples
 # |-- README.md                        # Project documentation
@@ -93,6 +90,11 @@ from IPython.display import Markdown
 # Add the parent directory to sys.path so 'src' can be imported
 import os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
+
+# Also add the src directory directly to the path
+src_path = os.path.abspath(os.path.join(os.getcwd(), '..', 'src'))
+if src_path not in sys.path:
+    sys.path.append(src_path)
 
 # %% [markdown]
 #
@@ -120,7 +122,7 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 # %% show source
 # Printing the source code of the operators module
-import src.utils.operators as operators
+import utils.operators as operators
 Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 
 # %% [markdown]
@@ -141,7 +143,7 @@ Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 
 # %% show source
 # Printing the source code of the contexts module
-import src.utils.contexts as contexts
+import utils.contexts as contexts
 Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 # 
 # %% [markdown]
@@ -204,7 +206,7 @@ Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 
 # %% show source
 # Printing the source code of the projector function
-from src.utils.measurements import projector
+from utils.measurements import projector
 Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 
 # %% [markdown]
@@ -215,7 +217,7 @@ Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 
 # %% show source
 # Printing the source code of the empirical_model function
-from src.utils.measurements import empirical_model
+from utils.measurements import empirical_model
 Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 
 # %% [markdown]
@@ -293,7 +295,7 @@ Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 
 # %% show source
 # Printing the source code of the incidence_matrix module
-import src.optimization.incidence_matrix as incidence_matrix
+import optimization.incidence_matrix as incidence_matrix
 Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 
 # %% [markdown]
@@ -329,7 +331,7 @@ Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 
 # %% show source
 # Printing the source code of the lin_prog module
-import src.optimization.lin_prog as lin_prog
+import optimization.lin_prog as lin_prog
 Markdown(f"```python\n{inspect.getsource(lin_prog)}\n```")
 
 
@@ -340,67 +342,20 @@ Markdown(f"```python\n{inspect.getsource(lin_prog)}\n```")
 
 
 # %%
-""" Example usage of the contextual_fraction function to compute the contextual fraction of various quantum states."""
-# Import necessary functions and modules
-from optimization.lin_prog import contextual_fraction
-from utils.measurements import empirical_model
-from utils.commutators import commute_check, check_context_commutators
-from utils.contexts import A, B
-from utils.states import (
-    create_maximally_mixed_state, 
-    create_product_state, 
-    create_maximally_entangled_state, 
-    create_custom_state, 
-    print_state_info,
-    get_default_test_states
-)
+# Create some test states and compute their contextual fractions
+from utils.states import get_default_test_states
+import optimization.lin_prog as lin_prog
 
+# Get test states
+states_dict = get_default_test_states()
 
-def main():
-    """Main function to calculate contextual fractions for various quantum states."""
-    print("Contextual Fraction Calculator for Two-Qutrit Systems")
-    print("=" * 60)
-    
-    # First, check if all context pairs commute
-    check_context_commutators()
-    
-    # Get default test states
-    states = get_default_test_states()
-    
-    results = {}
-
-    
-    for state_name, rho in states.items():
-        print_state_info(rho, state_name)
-        
-        try:
-            # Calculate contextual fraction
-            result = contextual_fraction(rho)
-            
-            if result['success']:
-                cf = result['b']
-                print(f"Contextual Fraction: {cf:.6f}")
-                print(f"Optimization Status: SUCCESS")
-                results[state_name] = cf
-            else:
-                print(f"Optimization Status: FAILED")
-                print(f"Message: {result['result'].message}")
-                results[state_name] = None
-                
-        except Exception as e:
-            print(f"Error calculating contextual fraction: {e}")
-            results[state_name] = None
-    
-    # Summary
-    print(f"\n{'='*60}")
-    print("SUMMARY")
-    print(f"{'='*60}")
-    
-    for state_name, cf in results.items():
-        if cf is not None:
-            print(f"{state_name:<30}: {cf:.6f}")
-        else:
-            print(f"{state_name:<30}: FAILED")
-
-if __name__ == "__main__":
-    main()
+# Compute contextual fractions for each state
+print("Contextual fractions for different quantum states:")
+print("=" * 50)
+for name, rho in states_dict.items():
+    result = lin_prog.contextual_fraction(rho)
+    if result['success']:
+        cf = result['b']
+        print(f"{name}: {cf:.6f}")
+    else:
+        print(f"{name}: Optimization failed")

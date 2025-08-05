@@ -24,7 +24,7 @@ def check_context_commutators():
         - The specific indices of non-commuting contexts (if any), along with a warning message.
     If all context pairs commute, a confirmation message is printed instead.
     """
-    from utils.contexts import A, B
+    from .contexts import A, B
     
     print("\n" + "="*60)
     print("CONTEXT COMMUTATOR CHECK")
