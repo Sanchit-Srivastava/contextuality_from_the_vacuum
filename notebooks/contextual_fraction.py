@@ -13,7 +13,73 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# # Introduction
+# This notebook provides an overview of the contextual fraction of 2-qutrit states with respect to Heisenberg-Weyl operators.
+#
+#
+#
+# > This notebook is structured to explain the key concepts and functions used in the project. In each section, the source code of relevant functions is displayed using `inspect.getsource`.
+
+# %% [markdown]
+# --- Notebook Structure Summary ---
+#
+# This notebook is organized into several key sections:
+#
+# 1. Introduction:
+#    - Provides an overview of the project.
+#    - Explains the structure of the source code and its pairing with Jupyter notebooks.
+#
+# 2. Heisenberg-Weyl Operators:
+#    - Introduces the definition of Heisenberg-Weyl operators for 2-qutrit states.
+#    - Displays the source code for the operators module.
+#
+# 3. Qudit Contexts:
+#    - Describes maximal commuting sets (contexts) of the Heisenberg-Weyl operators.
+#    - Shows the source code of the contexts module.
+#
+# 4. Projector and Empirical Model:
+#    - Explains how projectors and empirical models are constructed using spectral decompositions.
+#    - Prints the source code for the projector and empirical_model functions.
+#
+# 5. Noncontextual and Contextual Fraction:
+#    - Discusses the concept of global (noncontextual) assignments and the decomposition of empirical models.
+#
+# 6. Optimization Modules:
+#    - Introduces the incidence matrix and the linear programming formulation used to compute the contextual fraction.
+#    - Displays the source code for both the incidence_matrix and lin_prog modules.
+#
+# 7. Example Usage:
+#    - Demonstrates how to compute the contextual fraction for various quantum states.
+#    - Includes a main function that runs through these computations and prints a summary.
+#
+#
+# > **Note:** This notebook is paired with a Python script `notebooks/contextual_fraction.py` using [Jupytext](https://jupytext.readthedocs.io/en/latest/). Changes made in either file will be synchronized automatically. The Python script can be run directly as a standalone script.
+#
+# The source code for this project is structured as follows (see `README.md` for more details):
+# ```
+# 2_qudit_contextual_fraction/
+# ├── 📂 src/                          # Source code modules
+# │   ├── 📂 utils/                    # Utility modules
+# │   │   ├── operators.py             # Heisenberg-Weyl operators
+# │   │   ├── contexts.py              # Measurement contexts (40 contexts)
+# │   │   ├── commutators.py           # Commutator checking functions
+# │   │   ├── measurements.py          # Projectors & empirical models
+# │   │   ├── states.py                # Quantum state creation & analysis
+# │   │   └── ternary.py               # Base-3 number conversion
+# │   └── 📂 optimization/             # Linear programming optimization
+# │       ├── incidence_matrix.py      # Global assignment constraint matrix
+# │       └── lin_prog.py              # Contextual fraction calculation
+# ├── 📂 notebooks/                    # Jupyter notebooks
+# │   ├── contextual_fraction.ipynb    # Main analysis notebook --> You are here!
+# │   ├── contextual_fraction.py       # Jupytext paired Python file
+# ├── main.py                          # Main execution script
+# ├── example.py                       # Simple usage examples
+# ├── README.md                        # Project documentation
+# ```
+
 # %%
+# Adding the parent directory to sys.path so 'src' can be imported
 import sys
 import inspect
 from IPython.display import Markdown
@@ -51,6 +117,7 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 # For a given vector $v \in \mathbb{Z}_3^4$, we can generate the corresponding Heisenberg-Weyl operator using the function `src/utils/operators.pauli`. 
 
 # %% show source
+# Printing the source code of the operators module
 import src.utils.operators as operators
 Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 
@@ -71,6 +138,7 @@ Markdown(f"```python\n{inspect.getsource(operators)}\n```")
 # where $[v_1, v_2] = 0$ and $v_2 \neq zv_1$ for any $z \in \mathbb{Z}_3$ (i.e, $v_1$ and $v_2$ are linearly independent). Each context contains $3^2 = 9$ operators (one is the identity operator). There are 40 such contexts for the 2-qutrit Heisenberg-Weyl group. The generators of the contexts are given by the symplectic vectors in `src/utils/contexts.py`.
 
 # %% show source
+# Printing the source code of the contexts module
 import src.utils.contexts as contexts
 Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 
@@ -133,6 +201,7 @@ Markdown(f"```python\n{inspect.getsource(contexts)}\n```")
 # The projector for the context $c$ and the joint outcome $(a,b)$ can be computed using the function `src/utils.measurements.projector`:
 
 # %% show source
+# Printing the source code of the projector function
 from src.utils.measurements import projector
 Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 
@@ -143,6 +212,7 @@ Markdown(f"```python\n{inspect.getsource(projector)}\n```")
 # Hence,within a given context $c$, the outcome $(a,b)$ corresponds to the entry at index $[9c + (3 a + b)]$ in the empirical model vector. For 40 contexts, the empirical model is a vector of length $9 \times 40 = 360$. The empirical model for a given state can be computed using the function `src/utils.measurements.empirical_model`:
 
 # %% show source
+# Printing the source code of the empirical_model function
 from src.utils.measurements import empirical_model
 Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 
@@ -220,6 +290,7 @@ Markdown(f"```python\n{inspect.getsource(empirical_model)}\n```")
 # The incidence matrix $M$ is generated in `src/optimization.incidence_matrix`:
 
 # %% show source
+# Printing the source code of the incidence_matrix module
 import src.optimization.incidence_matrix as incidence_matrix
 Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 
@@ -255,6 +326,7 @@ Markdown(f"```python\n{inspect.getsource(incidence_matrix)}\n```")
 # 'src/optimization/lin_prog.py' contains the function `contextual_fraction` which implements this linear program using the `scipy.optimize.linprog` function.
 
 # %% show source
+# Printing the source code of the lin_prog module
 import src.optimization.lin_prog as lin_prog
 Markdown(f"```python\n{inspect.getsource(lin_prog)}\n```")
 
@@ -266,6 +338,8 @@ Markdown(f"```python\n{inspect.getsource(lin_prog)}\n```")
 
 
 # %%
+""" Example usage of the contextual_fraction function to compute the contextual fraction of various quantum states."""
+# Import necessary functions and modules
 from optimization.lin_prog import contextual_fraction
 from utils.measurements import empirical_model
 from utils.commutators import commute_check, check_context_commutators
