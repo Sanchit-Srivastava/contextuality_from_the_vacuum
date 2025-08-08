@@ -13,14 +13,20 @@ import os
 # Add src directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from optimization.lin_prog import contextual_fraction
-from utils.measurements import empirical_model
-from utils.commutators import commute_check, check_context_commutators
-from utils.contexts import A, B
-from utils.states import (
-    print_state_info,
-    get_default_test_states
-)
+# Import with try/except for better error handling
+try:
+    from optimization.lin_prog import contextual_fraction
+    from utils.measurements import empirical_model
+    from utils.commutators import commute_check, check_context_commutators
+    from utils.contexts import A, B
+    from utils.states import (
+        print_state_info,
+        get_default_test_states
+    )
+except ImportError as e:
+    print(f"Import error: {e}")
+    print("Make sure you're running from the project root directory")
+    sys.exit(1)
 
 
 def main():
