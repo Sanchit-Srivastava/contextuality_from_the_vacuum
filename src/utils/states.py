@@ -16,7 +16,7 @@ def create_product_state():
     """Create a product state |0⟩⊗|0⟩ for two qutrits."""
     state_0 = np.array([1, 0, 0])  # |0⟩ state for a qutrit
     product_state = np.kron(state_0, state_0)  # |0⟩⊗|0⟩
-    return np.outer(product_state, product_state.conj())
+    return product_state[:, np.newaxis] @ product_state.conj().T[np.newaxis, :]
 
 
 def create_maximally_entangled_state():
@@ -27,24 +27,27 @@ def create_maximally_entangled_state():
     state_22 = np.kron([0, 0, 1], [0, 0, 1])  # |22⟩
     
     psi = (state_00 + state_11 + state_22) / np.sqrt(3)
-    return np.outer(psi, psi.conj())
+    return psi[:, np.newaxis] @ psi.conj().T[np.newaxis, :]
 
 
-def create_custom_state(alpha=1/np.sqrt(2), beta=1/np.sqrt(2)):
-    """
-    Create a custom superposition state on the first qutrit, 
-    product with |0⟩ on second.
-    |ψ⟩ = (α|0⟩ + β|1⟩) ⊗ |0⟩
-    """
-    # Normalize coefficients
-    norm = np.sqrt(abs(alpha)**2 + abs(beta)**2)
-    alpha, beta = alpha/norm, beta/norm
+# def create_custom_state(alpha=1/np.sqrt(2), beta=1/np.sqrt(2)):
+#     """
+#     Create a custom superposition state on the first qutrit, 
+#     product with |0⟩ on second.
+#     |ψ⟩ = (α|0⟩ + β|1⟩) ⊗ |0⟩
+#     """
+#     # Normalize coefficients
+#     norm = np.sqrt(abs(alpha)**2 + abs(beta)**2)
+#     alpha, beta = alpha/norm, beta/norm
     
-    first_qutrit = np.array([alpha, beta, 0])  # Superposition on first qutrit
-    second_qutrit = np.array([1, 0, 0])        # |0⟩ on second qutrit
-    
-    product_state = np.kron(first_qutrit, second_qutrit)
-    return np.outer(product_state, product_state.conj())
+
+#     first_qutrit = np.array([alpha, beta, 0])  # Superposition on first qutrit
+#     first_qutrit_rho = first_qutrit[:, np.newaxis] @ first_qutrit.conj().T[np.newaxis, :]
+#     # second_qutrit = np.array([1, 0, 0])        # |0⟩ on second qutrit
+#     # second_qutrit_rho = (1/3)*np.eye(3,3)
+
+#     product_state = np.kron(first_qutrit_rho, first_qutrit_rho)
+#     return product_state
 
 
 def print_state_info(state, name):
@@ -57,6 +60,19 @@ def print_state_info(state, name):
     eigenvals = np.linalg.eigvals(state)
     print(f"Positive semidefinite: {np.all(eigenvals >= -1e-10)}")
     
+def magic_test_state(phase):
+    """Create a magic test state for two qutrits."""
+    # |ψ⟩ = (|00⟩ + |11⟩ + |22⟩) / √3
+    state_00 = np.kron([1, 0, 0], [1, 0, 0])  # |00⟩
+    state_11 = np.kron([0, 1, 0], [0, 1, 0])  # |11⟩
+    state_22 = np.kron([0, 0, 1], [0, 0, 1])  # |22⟩
+
+    psi = (state_00 + state_11 + phase * state_22) / np.sqrt(3)
+    return psi[:, np.newaxis] @ psi.conj().T[np.newaxis, :]
+
+def custom_state(p1, p2):
+    state = p1* magic_test_state(-1) + p2 * magic_test_state(1j)
+    return state
 
 
 def get_default_test_states():
@@ -65,5 +81,8 @@ def get_default_test_states():
         "Maximally Mixed State": create_maximally_mixed_state(),
         "Product State |00⟩": create_product_state(),
         "Maximally Entangled State": create_maximally_entangled_state(),
-        "Custom Superposition": create_custom_state(alpha=1, beta=1j),
+        # "Custom Superposition": create_custom_state(alpha=1, beta=1j),
+        "Magic Test State": magic_test_state(-1),
+        "Custom State": custom_state(1/4, 3/4)
     }
+

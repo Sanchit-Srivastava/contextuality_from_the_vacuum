@@ -18,10 +18,6 @@ from utils.measurements import empirical_model
 from utils.commutators import commute_check, check_context_commutators
 from utils.contexts import A, B
 from utils.states import (
-    create_maximally_mixed_state, 
-    create_product_state, 
-    create_maximally_entangled_state, 
-    create_custom_state, 
     print_state_info,
     get_default_test_states
 )

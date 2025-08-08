@@ -419,7 +419,7 @@ def create_product_state():
     """Create a product state |0⟩⊗|0⟩ for two qutrits."""
     state_0 = np.array([1, 0, 0])  # |0⟩ state for a qutrit
     product_state = np.kron(state_0, state_0)  # |0⟩⊗|0⟩
-    return np.outer(product_state, product_state.conj())
+    return product_state[:, np.newaxis] @ product_state.conj().T[np.newaxis, :]
 
 
 def create_maximally_entangled_state():
@@ -430,7 +430,7 @@ def create_maximally_entangled_state():
     state_22 = np.kron([0, 0, 1], [0, 0, 1])  # |22⟩
     
     psi = (state_00 + state_11 + state_22) / np.sqrt(3)
-    return np.outer(psi, psi.conj())
+    return psi[:, np.newaxis] @ psi.conj().T[np.newaxis, :]
 
 
 def create_custom_state(alpha=1/np.sqrt(2), beta=1/np.sqrt(2)):
@@ -447,7 +447,7 @@ def create_custom_state(alpha=1/np.sqrt(2), beta=1/np.sqrt(2)):
     second_qutrit = np.array([1, 0, 0])        # |0⟩ on second qutrit
     
     product_state = np.kron(first_qutrit, second_qutrit)
-    return np.outer(product_state, product_state.conj())
+    return product_state[:, np.newaxis] @ product_state.conj().T[np.newaxis, :]
 
 
 def print_state_info(state, name):

@@ -48,7 +48,7 @@ def example_usage():
     state_00 = np.kron([1, 0, 0], [1, 0, 0])
     state_11 = np.kron([0, 1, 0], [0, 1, 0])
     psi = (state_00 + state_11) / np.sqrt(2)
-    rho_entangled = np.outer(psi, psi.conj())
+    rho_entangled = psi[:, np.newaxis] @ psi.conj().T[np.newaxis, :]
     
     result = contextual_fraction(rho_entangled)
     
