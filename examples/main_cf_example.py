@@ -10,15 +10,14 @@ import numpy as np
 import sys
 import os
 
-# Add src directory to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+# Add src directory to path (go up one level from examples/ to project root)
+project_root = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(os.path.join(project_root, 'src'))
 
 # Import with try/except for better error handling
 try:
     from optimization.lin_prog import contextual_fraction
-    from utils.measurements import empirical_model
-    from utils.commutators import commute_check, check_context_commutators
-    from utils.contexts import A, B
+    from utils.commutators import check_context_commutators
     from utils.states import (
         print_state_info,
         get_default_test_states
@@ -30,7 +29,9 @@ except ImportError as e:
 
 
 def main():
-    """Main function to calculate contextual fractions for various quantum states."""
+    """
+    Main function to calculate contextual fractions for various quantum states.
+    """
     print("Contextual Fraction Calculator for Two-Qutrit Systems")
     print("=" * 60)
     
@@ -41,7 +42,6 @@ def main():
     states = get_default_test_states()
     
     results = {}
-
     
     for state_name, rho in states.items():
         print_state_info(rho, state_name)
@@ -53,10 +53,10 @@ def main():
             if result['success']:
                 cf = result['b']
                 print(f"Contextual Fraction: {cf:.6f}")
-                print(f"Optimization Status: SUCCESS")
+                print("Optimization Status: SUCCESS")
                 results[state_name] = cf
             else:
-                print(f"Optimization Status: FAILED")
+                print("Optimization Status: FAILED")
                 print(f"Message: {result['result'].message}")
                 results[state_name] = None
                 
@@ -74,6 +74,7 @@ def main():
             print(f"{state_name:<30}: {cf:.6f}")
         else:
             print(f"{state_name:<30}: FAILED")
+
 
 if __name__ == "__main__":
     main()
