@@ -8,7 +8,7 @@ import sys
 import os
 
 # Add src directory to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from optimization.lin_prog import contextual_fraction
 from utils.states import create_maximally_mixed_state, create_product_state

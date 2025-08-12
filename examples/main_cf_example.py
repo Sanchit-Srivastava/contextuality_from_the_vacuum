@@ -6,7 +6,6 @@ This script demonstrates how to calculate the contextual fraction for various
 quantum states using the linear programming approach.
 """
 
-import numpy as np
 import sys
 import os
 
@@ -17,7 +16,6 @@ sys.path.append(os.path.join(project_root, 'src'))
 # Import with try/except for better error handling
 try:
     from optimization.lin_prog import contextual_fraction
-    from utils.commutators import check_context_commutators
     from utils.states import (
         print_state_info,
         get_default_test_states
@@ -34,9 +32,6 @@ def main():
     """
     print("Contextual Fraction Calculator for Two-Qutrit Systems")
     print("=" * 60)
-    
-    # First, check if all context pairs commute
-    check_context_commutators()
     
     # Get default test states
     states = get_default_test_states()

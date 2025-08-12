@@ -2,87 +2,81 @@
 
 import numpy as np
 
-from . import operators
-from .contexts import A, B
+try:
+    from . import operators
+    from .contexts import A, B
+except ImportError:
+    # Fall back to absolute imports when run directly
+    import operators
+    from contexts import A, B
 
-w = np.exp(2 * np.pi * 1j / 3)  # Primitive cube root of unity
-
+w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 
 # Function to calculate the measurement projectors for a given context
 def projector(c, a, b):
-    """
-    Calculate the measurement projector for a given context and output (a, b).
+  """
+  Calculate the measurement projector for a given context and output (a, b).
 
-    For each pair (p, q), it performs the following steps:
-      - Computes an exponent as (p * a + q * b) modulo 3.
-      - Constructs an operator using a combination of A[c] and B[c] via the 
-        pauli function.
-      - Applies a phase factor by raising a global constant w to the power 
-        of the negative exponent.
-      - Accumulates the resulting operator.
+  For each pair (p, q), it performs the following steps:
+    - Computes an exponent as (p * a + q * b) modulo 3.
+    - Constructs an operator using a combination of A[c] and B[c] via the pauli function.
+    - Applies a phase factor by raising a global constant w to the power of the negative exponent.
+    - Accumulates the resulting operator.
 
-    Parameters:
-        c: Identifier/index selecting the context, used to index into A and B.
-        a: Outcome of the first operator A in the context (0, 1, or 2).
-        b: Outcome of the second operator B in the context (0, 1, or 2).
+  Finally, the accumulated sum is normalized by dividing by 9.
 
-    Returns:
-        The normalized measurement projector.
-    """
-    P = 0  # Initialize projector
-    for p in range(3):
-        for q in range(3):
-            # if p == 0 and q == 0:
-            #   continue
-            exponent = (p * a + q * b) % 3  # Exponent for phase factor
-            # Operator for (p, q) in context c
-            op = operators.pauli(p * A[c] + q * B[c])
-            term = w ** (-exponent) * op
-            P += term
-    return P / 9  
+  Parameters:
+      c: Identifier/index selecting the context, used to index into A and B.
+      a: Outcome of the first operator A in the context (0, 1, or 2).
+      b: Outcome of the second operator B in the context (0, 1, or 2).
 
-
+  Returns:
+      The normalized measurement projector.
+  """
+  P = 0 # Initialize projector
+  for p in range(3):
+    for q in range(3):
+      # if p == 0 and q == 0:
+      #   continue
+      exponent = (p * a + q * b) % 3 # Exponent for phase factor
+      op = operators.pauli(p * A[c] + q * B[c]) # Operator for (p, q) in context c
+      term = w ** (-exponent) * op
+      P += term 
+  return P / 9 # Normalize by 9
+  
 # Precompute all projectors: shape (40, 3, 3)
-projectors = [[[projector(c, a, b) for b in range(3)] 
-               for a in range(3)] for c in range(40)]
-
+projectors = [[[projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
 
 # Function to calculate measurement statistics for all contexts
 def empirical_model(rho):
     """
     Calculate the vectorized empirical model for the given quantum state.
 
-    This function computes the probabilities of joint measurement outcomes 
-    for each context.
+    This function computes the probabilities of joint measurement outcomes for each context.
    
-    For a given context c:
+    For a given context c 
       - Generates the projectors for all pairs (a, b) in that context.
-      - Computes the probabilities using the Born rule: 
-        P(a, b) = Tr(rho @ P(a, b)).
+      - Computes the probabilities using the Born rule: P(a, b) = Tr(rho @ P(a, b)).
 
     The computed probabilities are stored in a flattened vector of size 360 
-    (each context contributes 9 entries).
+      -(each context contributes 9 entries).
 
-    If the total probability for any context exceeds 1, a warning message 
-    is printed.
+    If the total probability for any context exceeds 1, a warning message is printed.
 
     Parameters:
-        rho (np.ndarray): The density matrix representing the quantum state. 
+      rho (np.ndarray): The density matrix representing the quantum state. 
 
     Returns:
-        np.ndarray: A 1D numpy array of length 360, where each segment of 
-            9 elements corresponds to a measurement context.
+      np.ndarray: A 1D numpy array of length 360
+      -each segment of 9 elements corresponds to a measurement context.
     """
-    E = np.zeros(360)  # Initialize empirical model vector
-    for c in range(40):  # Range over contexts
-        for a in range(3):
+    E = np.zeros(360) # Initialize empirical model vector
+    for c in range(40): #range over contexts
+        for a in range(3): 
             for b in range(3):
-                # Projectors precomputed using the projector function 
-                # outside the loop
-                P = projectors[c][a][b]
-                E[9*c + (3 * a + b)] = np.trace(rho @ P).real  # Born rule
+                P = projectors[c][a][b] # projectors precomputed using the projector function outside the loop
+                E[9*c + (3 * a + b)] = np.trace(rho @ P).real # Born rule
         tol = 1e-4  # Tolerance for slight numerical deviations
         if np.sum(E[9*c:9*c+9]) > 1 + tol:
-            print("Sum of entries for context", c, ":", 
-                  np.sum(E[9*c:9*c+9]))
+            print("Sum of entries for context", c, ":", np.sum(E[9*c:9*c+9]))
     return E
