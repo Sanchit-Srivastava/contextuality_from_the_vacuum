@@ -131,7 +131,7 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
 
 def M_term(gap: float, switching: float, separation: float, detector_type: str) -> complex:
     """M[Ω, σ, separation, λ]"""
-
+    # M is even w.r.t gap, so we don't differentiate between the groups
     if detector_type != "point_like" and detector_type != "smeared":
         raise ValueError("Unsupported detector_type")
     
@@ -157,7 +157,7 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
         epsrel=1e-8
         limit=200
         # adding -1 pre factor to eq. (4.15)
-        pre_factor = -1 * (9*switching**2) / (4*np.pi*smearing**2) * np.exp(-0.5*smearing**2*Omega**2)
+        pre_factor = -1 * (9*switching**2) / (4*np.pi*smearing**2) * np.exp(-0.5*smearing**2*gap**2)
         
 
         def integrand(k):
@@ -174,27 +174,68 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
 
 
 
-def Q_term(gap: float, switching: float, regulator: float, regularization: str) -> complex:
+def Q_term(gap: float, switching: float, regulator: float, regularization: str, detector_type: str) -> complex:
     """Q[Ω, σ, a, λ] - Compute Q term with different regularization schemes."""
-    
-    # Common exponential factor
-    a = regulator
-    exp_factor = -1 * np.exp(-0.5 * (switching * gap)**2)
-    base_term = 1 / (8 * pi)
-    
-    if regularization == "delta":
-        imaginary_term = 1j * switching**3 / (8 * pi * a * (a**2 + switching**2))
-        return exp_factor * (base_term - imaginary_term)
-    
-    elif regularization == "heaviside":
-        imaginary_term = 1j * switching / (8 * a * sqrt(2 * pi))
-        return exp_factor * (base_term - imaginary_term)
-    
-    elif regularization == "magical":
-        return exp_factor * base_term
-    
-    else:
-        raise ValueError(f"Unsupported regularization type: {regularization}")
+    # This is only for SU2 group. Don't even try to use it for HW. We will come for you. 
+
+    if detector_type == "point_like":
+        # Common exponential factor
+        a = regulator
+        exp_factor = -1 * np.exp(-0.5 * (switching * gap)**2)
+        base_term = 1 / (8 * pi)
+        
+        if regularization == "delta":
+            imaginary_term = 1j * switching**3 / (8 * pi * a * (a**2 + switching**2))
+            return exp_factor * (base_term - imaginary_term)
+        
+        elif regularization == "heaviside":
+            imaginary_term = 1j * switching / (8 * a * sqrt(2 * pi))
+            return exp_factor * (base_term - imaginary_term)
+        
+        elif regularization == "magical":
+            return exp_factor * base_term
+        
+        else:
+            raise ValueError(f"Unsupported regularization type: {regularization}")
+
+    elif detector_type == "smeared": 
+        epsabs=1e-10
+        epsrel=1e-8
+        limit=200
+
+        # Adding a -1 pre factor to Eq. 4.10
+        pre_factor = -1*(9*switching**2) / (8*np.pi*smearing**2) * np.exp(-0.5*switching**2*gap**2)
+
+        def integrand(k):
+            j1 = special.spherical_jn(1, k*smearing)
+            gauss = np.exp(-0.5*switching**2*k**2)
+            term = special.erfc(1j*k*switching/np.sqrt(2.0))  
+            return (j1*j1) * term * gauss / k
+
+        val = _quad_complex(integrand, 0.0, np.inf,
+                            epsabs=epsabs, epsrel=epsrel, limit=limit)
+        return pre_factor * val
+
+
+def V_term(gap, switching, smearing, ):
+
+    epsabs=1e-10
+    epsrel=1e-8 
+    limit=200
+
+    # Adding a prefactor of -1 to eq. 4.11
+    pre_factor = -1 * (9*switching**2) / (8*np.pi*smearing**2) * np.exp((-1/8)*switching**2*gap**2)
+
+    def integrand(k):
+        j1 = special.spherical_jn(1, k*smearing)
+        shift = k - 0.5*gap
+        term = special.erfc((1j*switching/np.sqrt(2.0))*shift)
+        gauss_shift = np.exp(-0.5*switching**2*(k - gap)**2)
+        return (j1*j1) * term * gauss_shift / k
+
+    val = _quad_complex(integrand, 0.0, np.inf,
+                        epsabs=epsabs, epsrel=epsrel, limit=limit)
+    return pre_factor * val
 
 
 
