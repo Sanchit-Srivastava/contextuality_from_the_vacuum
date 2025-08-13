@@ -105,11 +105,24 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
     
     return pref * erf_term
 
-def QregDelta(gap: float, switching: float, a: float, coupling: float) -> complex:
-    """QregDelta[Ω, σ, a, λ]"""
-    return (coupling**2) * np.exp(-0.5*(switching*gap)**2) * (
-        1/(8*pi) - 1j * switching**3 / (8*pi*a*(a**2 + switching**2))
-    )
+def Q_term(gap: float, switching: float, a: float, regularization: str) -> complex:
+    """Q[Ω, σ, a, λ]"""
+
+    pre_factor = np.exp(-0.5*(switching*gap)**2)
+
+    if regularization == "delta":
+        return  pre_factor * (
+            1/(8*pi) - 1j * switching**3 / (8*pi*a*(a**2 + switching**2))
+        )
+    elif regularization == "heaviside":
+        return  pre_factor * (
+                    1/(8*pi) - 1j * switching / (8*a*sqrt(2*pi))
+                )
+    elif regularization == "magical":
+        return  pre_factor * (
+            1/(8*pi)
+        )
+
 
 def QregHeavsde(gap: float, switching: float, a: float, coupling: float) -> complex:
     """QregHeavsde[Ω, σ, a, λ]"""
