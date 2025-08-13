@@ -12,7 +12,7 @@ except ImportError:
     from utils.ternary import to_ternary
 
 rows, cols = 360, 81  # rows = 9*40, cols = 3**4
-M_sparse = lil_matrix((rows, cols), dtype=int)  # use lil_matrix for efficient construction
+M_sparse = lil_matrix((rows, cols), dtype=int) # sparse matrix 
 
 # Create incidence matrix
 for g in range(cols):  # for each global assignment
