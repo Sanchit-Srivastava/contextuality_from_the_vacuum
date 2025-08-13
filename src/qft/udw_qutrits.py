@@ -3,7 +3,7 @@
 
 import numpy as np
 from numpy import pi, sqrt
-from scipy import integrate
+from scipy import integrate, special
 from scipy.special import erf, erfc  # supports complex args
 
 
@@ -129,7 +129,7 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
 
 
 
-def M_term(gap: float, switching: float, separation: float, detector_type: str) -> complex:
+def M_term(gap: float, switching: float, separation: float, smearing: float, detector_type: str) -> complex:
     """M[Ω, σ, separation, λ]"""
     # M is even w.r.t gap, so we don't differentiate between the groups
     if detector_type != "point_like" and detector_type != "smeared":
@@ -174,7 +174,7 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
 
 
 
-def Q_term(gap: float, switching: float, regulator: float, regularization: str, detector_type: str) -> complex:
+def Q_term(gap: float, switching: float, regulator: float, regularization: str, smearing: float, detector_type: str) -> complex:
     """Q[Ω, σ, a, λ] - Compute Q term with different regularization schemes."""
     # This is only for SU2 group. Don't even try to use it for HW. We will come for you. 
 
@@ -217,8 +217,8 @@ def Q_term(gap: float, switching: float, regulator: float, regularization: str, 
         return pre_factor * val
 
 
-def V_term(gap, switching, smearing, ):
-
+def V_term(gap: float, switching: float, smearing: float) -> complex:
+    ''' for smeared detectors only'''
     epsabs=1e-10
     epsrel=1e-8 
     limit=200
@@ -239,33 +239,8 @@ def V_term(gap, switching, smearing, ):
 
 
 
-# ----- 9x9 matrix builder -----
-
-# def twoqutrits_SUtwo(gap: float, switching: float,separation: float, a: float, Qfunc, coupling: float) -> np.ndarray:
-#     """
-#     Python version of:
-#       twoqutritsSUtwo[Ω, σ,separation, a, Q, λ]
-#     where Q is a callable: Q(Ω, σ, a, λ)
-#     """
-#     Lval   = L(gap, switching, coupling)
-#     Labval = Lab(gap, switching,separation, coupling)
-#     Mval   = M(gap, switching,separation, coupling)
-#     Qval   = Qfunc(gap, switching, a, coupling)
-
-#     return np.array([
-#         [1 - 2*Lval,           0, np.conjugate(Qval), 0, np.conjugate(Mval), 0, np.conjugate(Qval), 0, 0],
-#         [0,                    Lval, 0,               Labval, 0, 0, 0, 0, 0],
-#         [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
-#         [0,                    Labval, 0,             Lval,   0, 0, 0, 0, 0],
-#         [Mval,                 0,    0,               0,      0, 0, 0, 0, 0],
-#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-#         [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
-#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-#     ], dtype=complex)
-
-# ---------- matrices ----------
-def rho_perturb(gap: float, switching: float, separation: float, regulator: float, regularization: str, detector_type: str, group: str) -> np.ndarray:
+# ---------- matrices ---------
+def rho_perturb(gap: float, switching: float, separation: float, regulator: float, smearing: float, regularization: str, detector_type: str, group: str) -> np.ndarray:
     """
     Compute the perturbative correction matrix for the detector state.
 
@@ -277,16 +252,18 @@ def rho_perturb(gap: float, switching: float, separation: float, regulator: floa
     """
 
     # Evaluate the component functions
-    L_value = L_term(gap, switching, detector_type, group)
-    Lab_value = Lab_term(gap, switching, separation, detector_type, group)
-    M_value = M_term(gap, switching, separation, detector_type) # Same for both groups SU2 and HW
+    L_value = L_term(gap, switching, smearing,  detector_type, group)
+    Lab_value = Lab_term(gap, switching, separation, smearing,  detector_type, group)
+    M_value = M_term(gap, switching, separation, smearing, detector_type) # Same for both groups SU2 and HW
+    Q_value = Q_term(gap, switching, regulator, regularization, smearing, detector_type)
+    V_value = V_term(gap, switching, smearing)
 
     # Initialize a 9x9 zero matrix
     perturb_matrix = np.zeros((9, 9), dtype=complex)
 
     if group == "SU2":
         # Assign nonzero elements
-        Q_value = Q_term(gap, switching, regulator, regularization) # For point like and SU2 only
+        Q_value = Q_term(gap, switching, regulator, regularization, smearing, detector_type)
         perturb_matrix[0, 0] = -2 * L_value
         perturb_matrix[0, 2] = np.conjugate(Q_value)
         perturb_matrix[0, 4] = np.conjugate(M_value)
@@ -307,7 +284,60 @@ def rho_perturb(gap: float, switching: float, separation: float, regulator: floa
         # Remaining entries are zeros by default
         return perturb_matrix
 
-def detector_state(gap: float, switching: float, separation: float, regulator: float, regularization: str, detector_type: str, group: str, lam: float) -> np.ndarray:
+    elif group == "HW":
+        # Row 1
+        perturb_matrix[0,0] = -4*L_value
+        perturb_matrix[0,1] = np.conjugate(V_value)
+        perturb_matrix[0,2] = np.conjugate(V_value)
+        perturb_matrix[0,3] = np.conjugate(V_value)
+        perturb_matrix[0,4] = np.conjugate(M_value)
+        perturb_matrix[0,5] = np.conjugate(M_value)
+        perturb_matrix[0,6] = np.conjugate(V_value)
+        perturb_matrix[0,7] = np.conjugate(M_value)
+        perturb_matrix[0,8] = np.conjugate(M_value)
+
+        #Row 2 
+        perturb_matrix[1,0] = V_value
+        perturb_matrix[1,1] = L_value
+        perturb_matrix[1,2] = L_value
+        # Not conjugating Lab_value because they are real
+        perturb_matrix[1,3] = Lab_value
+        perturb_matrix[1,6] = Lab_value
+
+        #Row 3
+        perturb_matrix[2,0] = V_value
+        perturb_matrix[2,1] = L_value
+        perturb_matrix[2,2] = L_value
+        perturb_matrix[2,3] = Lab_value
+        perturb_matrix[2,6] = Lab_value
+
+        # Row 4
+        perturb_matrix[3,0] = V_value
+        perturb_matrix[3,1] = Lab_value
+        perturb_matrix[3,2] = Lab_value
+        perturb_matrix[3,3] = L_value
+        perturb_matrix[3,6] = L_value
+
+        # Row 5
+        perturb_matrix[4,0] = M_value
+
+        # Row 6
+        perturb_matrix[5,0] = M_value
+
+        # Row 7 #same as row 4
+        perturb_matrix[6,0] = V_value
+        perturb_matrix[6,1] = Lab_value
+        perturb_matrix[6,2] = Lab_value
+        perturb_matrix[6,3] = L_value
+        perturb_matrix[6,6] = L_value
+
+        # Row 8
+        perturb_matrix[7,0] = M_value
+
+        # Row 9
+        perturb_matrix[8,0] = M_value
+
+def detector_state(gap: float, switching: float, separation: float, regulator: float, smearing: float, regularization: str, detector_type: str, group: str, lam: float) -> np.ndarray:
     """
     Compute the density matrix by adding a perturbative correction to the seed state.
 
@@ -321,18 +351,11 @@ def detector_state(gap: float, switching: float, separation: float, regulator: f
     Returns:
         np.ndarray: The resulting 9x9 complex density matrix.
     """
-    rho_second = lam**2 * rho_perturb(gap, switching, separation, regulator, regularization, detector_type, group)  
+    rho_second = lam**2 * rho_perturb(gap, switching, separation, regulator, smearing, regularization, detector_type, group)  
     result = rho0 + rho_second
 
     return result
 
-# ----- utilities -----
-def chop(x, tol=1e-12):
-    """Like Mathematica's Chop: zero out tiny real/imag parts."""
-    x = np.asarray(x)
-    r = np.where(np.abs(x.real) < tol, 0.0, x.real)
-    i = np.where(np.abs(x.imag) < tol, 0.0, x.imag)
-    return r + 1j*i
 
 if __name__ == "__main__":
     # Test parameters
@@ -341,7 +364,8 @@ if __name__ == "__main__":
     separation = 10
     regulator = 1
     regularization = "magical"
-    detector_type = "point_like"
+    detector_type = "smeared"
+    smearing = 0.1
     group = "SU2"
     lam = 1e-2
 
@@ -354,8 +378,7 @@ if __name__ == "__main__":
     print("Testing with QregDelta Q-function:")
     print("-" * 30)
 
-
-    rho = detector_state(gap, switching, separation, regulator, regularization, detector_type, group, lam)
+    rho = detector_state(gap, switching, separation, regulator, smearing, regularization, detector_type, group, lam)
     # Print the state matrix
     print("Generated density matrix:")
     print(rho)
