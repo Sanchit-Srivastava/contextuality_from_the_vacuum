@@ -75,7 +75,7 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
 
 
 
-def Lab_term(gap: float, switching: float, separation: float, detector_type: str, group: str) -> complex:
+def Lab_term(gap: float, switching: float, separation: float, smearing: float, detector_type: str, group: str) -> complex:
     """Lab[Ω, σ, separation, λ]"""
     
     # Determine effective gap based on group
@@ -90,23 +90,44 @@ def Lab_term(gap: float, switching: float, separation: float, detector_type: str
     sqrt_2 = sqrt(2)
     sqrt_pi = sqrt(pi)
     
-    # Compute prefix factor
-    norm_separation = (separation / (sqrt_2 * switching))
-    pref = 1 / (8 * sqrt_pi) * (1 / norm_separation)
-    pref *= np.exp(-1 * norm_separation**2)
+    if detector_type == "point_like":   
+        # Compute prefix factor
+        norm_separation = (separation / (sqrt_2 * switching))
+        pref = 1 / (8 * sqrt_pi) * (1 / norm_separation)
+        pref *= np.exp(-1 * norm_separation**2)
 
-    # Compute error function argument
-    erf_arg = 1j * norm_separation + (effective_gap * switching) / sqrt_2
+        # Compute error function argument
+        erf_arg = 1j * norm_separation + (effective_gap * switching) / sqrt_2
 
-    # Compute the main term
-    exp_term = np.exp(1j * separation * effective_gap)
-    erf_term = erf(erf_arg)
-    main_term = exp_term * erf_term
-    
-    # Combine terms
-    result = pref * (np.imag(main_term) + np.sin(effective_gap * separation))
-    
-    return result
+        # Compute the main term
+        exp_term = np.exp(1j * separation * effective_gap)
+        erf_term = erf(erf_arg)
+        main_term = exp_term * erf_term
+        
+        # Combine terms
+        result = pref * (np.imag(main_term) + np.sin(effective_gap * separation))
+        
+        return result
+
+    elif detector_type == "smeared":
+        # Smeared detectors
+        epsabs=1e-10
+        epsrel=1e-8
+        limit=200
+
+        pre_factor = (9*switching**2) / (4*np.pi*smearing**2)
+
+        def integrand(k):
+            j1 = special.spherical_jn(1, k*smearing)
+            j0 = special.spherical_jn(0, k*separation)
+            return (j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2) * j0 / k
+
+        val = integrate.quad(integrand, 0.0, np.inf,
+                            epsabs=epsabs, epsrel=epsrel, limit=limit)[0]
+        return pre_factor * val
+
+
+
 
 def M_term(gap: float, switching: float, separation: float, detector_type: str) -> complex:
     """M[Ω, σ, separation, λ]"""
