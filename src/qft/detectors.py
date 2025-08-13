@@ -83,14 +83,14 @@ def Lab_term(gap: float, switching: float, separation: float, group: str) -> com
     
     return result
 
-def M_term(gap: float, switching: float,separation: float, detector_type: str, group: str) -> complex:
+def M_term(gap: float, switching: float,separation: float, detector_type: str) -> complex:
     """M[Ω, σ,separation, λ]"""
     
+    norm_separation = (separation / (sqrt_2 * switching))
 
-
-    pref = (coupling**2) * 1j * (1/(4*sqrt(pi))) * (switching/(sqrt(2)*d))
-    pref *= np.exp(-(d**2)/(2*switching**2)) * np.exp(-0.5*(switching*gap)**2)
-    return pref * (1 + erf(1j*(d/(sqrt(2)*switching))))
+    pref =  1j * (1/(8*sqrt(pi))) * (1/norm_separation)
+    pref *= np.exp(-(norm_separation**2)) * np.exp(-0.5*(switching*gap)**2)
+    return pref * (1 + erf(1j*(norm_separation)))
 
 def QregDelta(gap: float, switching: float, a: float, coupling: float) -> complex:
     """QregDelta[Ω, σ, a, λ]"""
