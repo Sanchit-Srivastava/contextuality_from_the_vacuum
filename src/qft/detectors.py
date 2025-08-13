@@ -197,8 +197,26 @@ def rho_perturb(gap: float, switching: float, separation: float, regulator: floa
         # Remaining entries are zeros by default
         return perturb_matrix
 
-# ----- utilities -----
+def detector_state(gap: float, switching: float, separation: float, regulator: float, regularization: str, detector_type: str, group: str, lam: float) -> np.ndarray:
+    """
+    Compute the density matrix by adding a perturbative correction to the seed state.
 
+    Parameters:
+        sigma (float): Standard deviation parameter.
+        d (float): Distance parameter.
+        a (float): Parameter a.
+        Q_func (callable): Function that computes the Q-value.
+        lam (float): Perturbation strength parameter.
+
+    Returns:
+        np.ndarray: The resulting 9x9 complex density matrix.
+    """
+    rho_second = lam**2 * rho_perturb(gap, switching, separation, regulator, regularization, detector_type, group)  
+    result = rho0 + rho_second
+
+    return result
+
+# ----- utilities -----
 def chop(x, tol=1e-12):
     """Like Mathematica's Chop: zero out tiny real/imag parts."""
     x = np.asarray(x)
@@ -206,14 +224,35 @@ def chop(x, tol=1e-12):
     i = np.where(np.abs(x.imag) < tol, 0.0, x.imag)
     return r + 1j*i
 
+if __name__ == "__main__":
+    # Test parameters
+    gap = 10
+    switching = 1
+    separation = 10
+    regulator = 1
+    regularization = "magical"
+    detector_type = "point_like"
+    group = "SU2"
+    lam = 1e-2
 
-# ----- example usage (mirrors your Eigenvalues[...] // N // Chop) -----
-if name == "__main__":
-    gap   = 2.0                                  # choose a numeric Ω
-    switching = 1/gap
-   separation     = 10/gap
-    a     = 1e-4/gap
-    coupling   = 1e-2
-    A = twoqutrits_SUtwo(gap, switching,separation, a, QregDelta, coupling)
-    evals = np.linalg.eigvals(A)
-    print(chop(np.sort_complex(evals)))
+    print("Detector state")
+    print("=" * 50)
+    print(f"Parameters: gap={gap}, switching={switching}, separation={separation}, regulator={regulator}, regularization={regularization}, detector_type={detector_type}, group={group}, lambda={lam}")
+    print()
+    
+    # Test with QregDelta Q-function
+    print("Testing with QregDelta Q-function:")
+    print("-" * 30)
+
+
+    rho = detector_state(gap, switching, separation, regulator, regularization, detector_type, group, lam)
+    # Print the state matrix
+    print("Generated density matrix:")
+    print(rho)
+    print()
+    
+    # Check if it's a valid density matrix
+    print("Density Matrix Validation:")
+    print("-" * 25)
+
+    validate_and_print(rho, "Generated Density Matrix")
