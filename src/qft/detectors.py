@@ -66,7 +66,7 @@ def Lab_term(gap: float, switching: float, separation: float, group: str) -> com
     sqrt_pi = sqrt(pi)
     
     # Compute prefix factor
-    norm_separation = ((sqrt_2 * separation) / switching)
+    norm_separation = (separation / (sqrt_2 * switching))
     pref = 1 / (8 * sqrt_pi) * (1 / norm_separation)
     pref *= np.exp(-1 * norm_separation**2)
 
@@ -83,8 +83,11 @@ def Lab_term(gap: float, switching: float, separation: float, group: str) -> com
     
     return result
 
-def M(gap: float, switching: float,separation: float, coupling: float) -> complex:
+def M_term(gap: float, switching: float,separation: float, detector_type: str, group: str) -> complex:
     """M[Ω, σ,separation, λ]"""
+    
+
+
     pref = (coupling**2) * 1j * (1/(4*sqrt(pi))) * (switching/(sqrt(2)*d))
     pref *= np.exp(-(d**2)/(2*switching**2)) * np.exp(-0.5*(switching*gap)**2)
     return pref * (1 + erf(1j*(d/(sqrt(2)*switching))))
