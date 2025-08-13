@@ -4,6 +4,16 @@ import numpy as np
 from numpy import pi, sqrt
 from scipy.special import erf, erfc  # complex-safe
 
+try:
+    from utils.state_checks import is_valid_state
+    from utils.state_checks import validate_and_print
+except ImportError:
+    import sys
+    from os.path import dirname, abspath
+    sys.path.append(dirname(dirname(abspath(__file__))))
+    from utils.state_checks import is_valid_state
+    from utils.state_checks import validate_and_print
+
 # ---------- base 9x9 seed ----------
 rho0 = np.zeros((9, 9), dtype=complex)
 rho0[0, 0] = 1.0
@@ -98,7 +108,7 @@ def QregDelta(sigma: float, a: float) -> complex:
     return scale * (real_component + 1j * imag_component)
 
 
-def QregHeaviside(sigma: float, a: float) -> complex:
+def QregHeavsde(sigma: float, a: float) -> complex:
     # Precompute the exponential damping factor.
     scale = np.exp(-0.5 * sigma**2)
     
@@ -165,18 +175,55 @@ def rho_perturb(sigma: float, d: float, a: float, Q_func) -> np.ndarray:
     perturb_matrix[4, 0] = Q_value
 
     # Remaining entries are zeros by default
-
     return perturb_matrix
 
-def rho(sigma: float, d: float, a: float, Qfunc, lam: float) -> np.ndarray:
-    return rho0 + (lam**2) * rho_perturb(sigma, d, a, Qfunc)
+def detector_state(sigma: float, d: float, a: float, Q_func, lam: float) -> np.ndarray:
+    """
+    Compute the density matrix by adding a perturbative correction to the seed state.
+
+    Parameters:
+        sigma (float): Standard deviation parameter.
+        d (float): Distance parameter.
+        a (float): Parameter a.
+        Q_func (callable): Function that computes the Q-value.
+        lam (float): Perturbation strength parameter.
+
+    Returns:
+        np.ndarray: The resulting 9x9 complex density matrix.
+    """
+    correction = lam**2 * rho_perturb(sigma, d, a, Q_func)
+    result = rho0 + correction
+    
+    # Ensure the result is Hermitian by averaging with its conjugate transpose
+    result = 0.5 * (result + result.conj().T)
+    
+    return result
+
+
+# Alias for compatibility with other modules
+rho = detector_state
+
 
 # ---------- utilities ----------
 def chop(x, tol=1e-12):
-    x = np.asarray(x)
-    r = np.where(np.abs(x.real) < tol, 0.0, x.real)
-    i = np.where(np.abs(x.imag) < tol, 0.0, x.imag)
-    return r + 1j*i
+    """
+    Rounds small values (below tol) in both the real and imaginary parts of x to zero.
+
+    Parameters:
+        x : array-like
+            The input array.
+        tol : float, optional
+            Tolerance threshold below which values are set to zero.
+
+    Returns:
+        np.ndarray: The resulting complex array with small values rounded to zero.
+    """
+    x = np.array(x, dtype=complex, copy=True)
+    mask = np.abs(x.real) < tol
+    x.real[mask] = 0.0
+    mask = np.abs(x.imag) < tol
+    x.imag[mask] = 0.0
+    return x
 
 # ---------- example (mirrors: Eigenvalues[rho[1,10,10,QregDelta,10^-2]] // N // Chop) ----------
 if __name__ == "__main__":
@@ -185,8 +232,8 @@ if __name__ == "__main__":
     d = 10.0
     a = 10.0
     lam = 1e-2
-    
-    print("Quantum Field Theory Detector State Analysis")
+
+    print("Detector state")
     print("=" * 50)
     print(f"Parameters: sigma={sigma}, d={d}, a={a}, lambda={lam}")
     print()
@@ -194,49 +241,16 @@ if __name__ == "__main__":
     # Test with QregDelta Q-function
     print("Testing with QregDelta Q-function:")
     print("-" * 30)
-    
-    A = rho(sigma, d, a, QregDelta, lam)
-    
+
+    rho = detector_state(sigma, d, a, QregDelta, lam)
+
     # Print the state matrix
     print("Generated density matrix:")
-    print(A)
+    print(rho)
     print()
     
     # Check if it's a valid density matrix
     print("Density Matrix Validation:")
     print("-" * 25)
-    
-    # Check trace
-    trace = np.trace(A)
-    print(f"Trace: {trace:.10f}")
-    trace_valid = np.abs(trace - 1.0) < 1e-10
-    print(f"Trace = 1: {trace_valid}")
-    
-    # Check if Hermitian
-    is_hermitian = np.allclose(A, A.T.conj())
-    print(f"Is Hermitian: {is_hermitian}")
-    
-    # Check eigenvalues (positive semidefinite)
-    evals = np.linalg.eigvals(A)
-    evals_real = np.real(evals)  # Should be real for Hermitian matrices
-    min_eigenval = np.min(evals_real)
-    print(f"Eigenvalues: {chop(np.sort_complex(evals))}")
-    print(f"Minimum eigenvalue: {min_eigenval:.10f}")
-    positive_semidefinite = min_eigenval >= -1e-10  # Allow small numerical errors
-    print(f"Positive semidefinite: {positive_semidefinite}")
-    
-    # Overall validity
-    is_valid_density_matrix = trace_valid and is_hermitian and positive_semidefinite
-    print()
-    print(f"Valid density matrix: {is_valid_density_matrix}")
-    
-    if not is_valid_density_matrix:
-        print("\nWARNING: Generated state is not a valid density matrix!")
-        if not trace_valid:
-            print(f"  - Trace issue: {trace} ≠ 1")
-        if not is_hermitian:
-            print("  - Not Hermitian")
-        if not positive_semidefinite:
-            print(f"  - Negative eigenvalue: {min_eigenval}")
-    else:
-        print("\nSUCCESS: Generated state is a valid density matrix!")
+
+    validate_and_print(rho, "Generated Density Matrix")
