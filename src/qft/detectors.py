@@ -83,14 +83,27 @@ def Lab_term(gap: float, switching: float, separation: float, group: str) -> com
     
     return result
 
-def M_term(gap: float, switching: float,separation: float, detector_type: str) -> complex:
-    """M[Ω, σ,separation, λ]"""
+def M_term(gap: float, switching: float, separation: float, detector_type: str) -> complex:
+    """M[Ω, σ, separation, λ]"""
     
-    norm_separation = (separation / (sqrt_2 * switching))
-
-    pref =  1j * (1/(8*sqrt(pi))) * (1/norm_separation)
-    pref *= np.exp(-(norm_separation**2)) * np.exp(-0.5*(switching*gap)**2)
-    return pref * (1 + erf(1j*(norm_separation)))
+    if detector_type != "point_like":
+        raise ValueError("Unsupported detector_type (for now)")
+    
+    # Pre-compute common terms
+    sqrt_2 = sqrt(2)
+    sqrt_pi = sqrt(pi)
+    
+    # Compute normalized separation
+    norm_separation = separation / (sqrt_2 * switching)
+    
+    # Compute prefix factor
+    pref = 1j / (8 * sqrt_pi * norm_separation)
+    pref *= np.exp(-norm_separation**2 - 0.5 * (switching * gap)**2)
+    
+    # Compute error function term
+    erf_term = 1 + erf(1j * norm_separation)
+    
+    return pref * erf_term
 
 def QregDelta(gap: float, switching: float, a: float, coupling: float) -> complex:
     """QregDelta[Ω, σ, a, λ]"""
