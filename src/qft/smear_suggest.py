@@ -71,7 +71,7 @@ def smearedLab(Omega, T, R, d, *, epsabs=1e-10, epsrel=1e-8, limit=200):
 # Eq. (4.15)
 def smearedM(Omega, T, R, d, *, epsabs=1e-10, epsrel=1e-8, limit=200):
     # erfc(i x) = 1 - i*erfi(x)
-    pref = (9*T**2) / (4*np.pi*R**2) * np.exp(-0.5*T**2*Omega**2)
+    pref = -1 * (9*T**2) / (4*np.pi*R**2) * np.exp(-0.5*T**2*Omega**2)
     rt2 = np.sqrt(2.0)
 
     def integrand(k):

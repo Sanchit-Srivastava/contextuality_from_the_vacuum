@@ -131,25 +131,48 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
 
 def M_term(gap: float, switching: float, separation: float, detector_type: str) -> complex:
     """M[Ω, σ, separation, λ]"""
-    
-    if detector_type != "point_like":
-        raise ValueError("Unsupported detector_type (for now)")
+
+    if detector_type != "point_like" and detector_type != "smeared":
+        raise ValueError("Unsupported detector_type")
     
     # Pre-compute common terms
     sqrt_2 = sqrt(2)
     sqrt_pi = sqrt(pi)
     
-    # Compute normalized separation
-    norm_separation = separation / (sqrt_2 * switching)
-    
-    # Compute prefix factor
-    pref = 1j / (8 * sqrt_pi * norm_separation)
-    pref *= np.exp(-norm_separation**2 - 0.5 * (switching * gap)**2)
-    
-    # Compute error function term
-    erf_term = 1 + erf(1j * norm_separation)
-    
-    return pref * erf_term
+    if detector_type == "point_like":
+        # Compute normalized separation
+        norm_separation = separation / (sqrt_2 * switching)
+        
+        # Compute prefix factor
+        pref = 1j / (8 * sqrt_pi * norm_separation)
+        pref *= np.exp(-norm_separation**2 - 0.5 * (switching * gap)**2)
+        
+        # Compute error function term
+        erf_term = 1 + erf(1j * norm_separation)
+        
+        return pref * erf_term
+
+    elif detector_type == "smeared":
+        epsabs=1e-10
+        epsrel=1e-8
+        limit=200
+        # adding -1 pre factor to eq. (4.15)
+        pre_factor = -1 * (9*switching**2) / (4*np.pi*smearing**2) * np.exp(-0.5*smearing**2*Omega**2)
+        
+
+        def integrand(k):
+            j1 = special.spherical_jn(1, k*smearing)
+            j0 = special.spherical_jn(0, k*separation)
+            term =  special.erfc(1j*k*switching/sqrt(2))
+            gauss = np.exp(-0.5*switching**2*k**2)
+            return (j1*j1) * term * gauss * j0 / k
+
+        val = _quad_complex(integrand, 0.0, np.inf,
+                            epsabs=epsabs, epsrel=epsrel, limit=limit)
+        return pre_factor * val
+
+
+
 
 def Q_term(gap: float, switching: float, regulator: float, regularization: str) -> complex:
     """Q[Ω, σ, a, λ] - Compute Q term with different regularization schemes."""
