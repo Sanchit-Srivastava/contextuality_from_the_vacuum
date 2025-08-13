@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from .chop import chop 
+
 def is_valid_state(rho: np.ndarray, tolerance: float = 1e-10, 
                    return_details: bool = False):
     """Check if a given matrix is a valid density matrix.
@@ -131,8 +133,8 @@ def print_validation_results(validation_results: dict, matrix_name: str = "Matri
     
     # Eigenvalue check
     if 'eigenvalues' in details:
-        eigenvals = details['eigenvalues']
-        min_eig = details['min_eigenvalue']
+        eigenvals = chop(details['eigenvalues'])
+        min_eig = chop(details['min_eigenvalue'])
         status = "✓" if min_eig >= -1e-10 else "✗"
         print(f"Positive semidefinite {status}: Min eigenvalue = {min_eig:.2e}")
         print(f"All eigenvalues: {eigenvals}")

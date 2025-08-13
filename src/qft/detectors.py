@@ -226,7 +226,7 @@ def chop(x, tol=1e-12):
 
 if __name__ == "__main__":
     # Test parameters
-    gap = 10
+    gap = 1
     switching = 1
     separation = 10
     regulator = 1
