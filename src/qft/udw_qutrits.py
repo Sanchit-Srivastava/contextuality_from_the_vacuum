@@ -67,7 +67,7 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
 
         def integrand(k):
             j1 = special.spherical_jn(1, k*smearing)
-            return (j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2) / k
+            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2)) / k
 
         val = integrate.quad(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)[0]
@@ -120,7 +120,7 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
         def integrand(k):
             j1 = special.spherical_jn(1, k*smearing)
             j0 = special.spherical_jn(0, k*separation)
-            return (j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2) * j0 / k
+            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2) * j0)/ k
 
         val = integrate.quad(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)[0]
@@ -165,7 +165,7 @@ def M_term(gap: float, switching: float, separation: float, smearing: float, det
             j0 = special.spherical_jn(0, k*separation)
             term =  special.erfc(1j*k*switching/sqrt(2))
             gauss = np.exp(-0.5*switching**2*k**2)
-            return (j1*j1) * term * gauss * j0 / k
+            return ((j1*j1) * term * gauss * j0) / k
 
         val = _quad_complex(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -210,7 +210,7 @@ def Q_term(gap: float, switching: float, regulator: float, regularization: str, 
             j1 = special.spherical_jn(1, k*smearing)
             gauss = np.exp(-0.5*switching**2*k**2)
             term = special.erfc(1j*k*switching/np.sqrt(2.0))  
-            return (j1*j1) * term * gauss / k
+            return ((j1*j1) * term * gauss) / k
 
         val = _quad_complex(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -231,7 +231,7 @@ def V_term(gap: float, switching: float, smearing: float) -> complex:
         shift = k - 0.5*gap
         term = special.erfc((1j*switching/np.sqrt(2.0))*shift)
         gauss_shift = np.exp(-0.5*switching**2*(k - gap)**2)
-        return (j1*j1) * term * gauss_shift / k
+        return ((j1*j1) * term * gauss_shift) / k
 
     val = _quad_complex(integrand, 0.0, np.inf,
                         epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -337,6 +337,8 @@ def rho_perturb(gap: float, switching: float, separation: float, regulator: floa
         # Row 9
         perturb_matrix[8,0] = M_value
 
+        return perturb_matrix
+
 def detector_state(gap: float, switching: float, separation: float, regulator: float, smearing: float, regularization: str, detector_type: str, group: str, lam: float) -> np.ndarray:
     """
     Compute the density matrix by adding a perturbative correction to the seed state.
@@ -366,7 +368,7 @@ if __name__ == "__main__":
     regularization = "magical"
     detector_type = "smeared"
     smearing = 0.1
-    group = "SU2"
+    group = "HW"
     lam = 1e-2
 
     print("Detector state")
