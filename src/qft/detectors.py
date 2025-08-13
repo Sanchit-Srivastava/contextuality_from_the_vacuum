@@ -106,22 +106,25 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
     return pref * erf_term
 
 def Q_term(gap: float, switching: float, a: float, regularization: str) -> complex:
-    """Q[Ω, σ, a, λ]"""
-
-    pre_factor = np.exp(-0.5*(switching*gap)**2)
-
+    """Q[Ω, σ, a, λ] - Compute Q term with different regularization schemes."""
+    
+    # Common exponential factor
+    exp_factor = -1 * np.exp(-0.5 * (switching * gap)**2)
+    base_term = 1 / (8 * pi)
+    
     if regularization == "delta":
-        return  pre_factor * (
-            1/(8*pi) - 1j * switching**3 / (8*pi*a*(a**2 + switching**2))
-        )
+        imaginary_term = 1j * switching**3 / (8 * pi * a * (a**2 + switching**2))
+        return exp_factor * (base_term - imaginary_term)
+    
     elif regularization == "heaviside":
-        return  pre_factor * (
-                    1/(8*pi) - 1j * switching / (8*a*sqrt(2*pi))
-                )
+        imaginary_term = 1j * switching / (8 * a * sqrt(2 * pi))
+        return exp_factor * (base_term - imaginary_term)
+    
     elif regularization == "magical":
-        return  pre_factor * (
-            1/(8*pi)
-        )
+        return exp_factor * base_term
+    
+    else:
+        raise ValueError(f"Unsupported regularization type: {regularization}")
 
 
 def QregHeavsde(gap: float, switching: float, a: float, coupling: float) -> complex:
