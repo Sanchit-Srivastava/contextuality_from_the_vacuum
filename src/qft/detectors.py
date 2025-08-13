@@ -50,7 +50,7 @@ def L_term(gap: float, switching: float, detector_type: str, group: str) -> floa
     return term
     
 
-def Lab_term(gap: float, switching: float, separation: float, group: str) -> complex:
+def Lab_term(gap: float, switching: float, separation: float, detector_type: str, group: str) -> complex:
     """Lab[Ω, σ, separation, λ]"""
     
     # Determine effective gap based on group
@@ -105,10 +105,11 @@ def M_term(gap: float, switching: float, separation: float, detector_type: str) 
     
     return pref * erf_term
 
-def Q_term(gap: float, switching: float, a: float, regularization: str) -> complex:
+def Q_term(gap: float, switching: float, regulator: float, regularization: str) -> complex:
     """Q[Ω, σ, a, λ] - Compute Q term with different regularization schemes."""
     
     # Common exponential factor
+    a = regulator
     exp_factor = -1 * np.exp(-0.5 * (switching * gap)**2)
     base_term = 1 / (8 * pi)
     
@@ -127,41 +128,74 @@ def Q_term(gap: float, switching: float, a: float, regularization: str) -> compl
         raise ValueError(f"Unsupported regularization type: {regularization}")
 
 
-def QregHeavsde(gap: float, switching: float, a: float, coupling: float) -> complex:
-    """QregHeavsde[Ω, σ, a, λ]"""
-    return (coupling**2) * np.exp(-0.5*(switching*gap)**2) * (
-        1/(8*pi) - 1j * switching/(8*sqrt(2*pi)*a)
-    )
-
-def Qmagic(gap: float, switching: float, a: float, coupling: float) -> complex:
-    """Qmagic[Ω, σ, a, λ]"""
-    return (coupling**2) * np.exp(-0.5*(switching*gap)**2) * (1/(8*pi))
-
 
 # ----- 9x9 matrix builder -----
 
-def twoqutrits_SUtwo(gap: float, switching: float,separation: float, a: float, Qfunc, coupling: float) -> np.ndarray:
-    """
-    Python version of:
-      twoqutritsSUtwo[Ω, σ,separation, a, Q, λ]
-    where Q is a callable: Q(Ω, σ, a, λ)
-    """
-    Lval   = L(gap, switching, coupling)
-    Labval = Lab(gap, switching,separation, coupling)
-    Mval   = M(gap, switching,separation, coupling)
-    Qval   = Qfunc(gap, switching, a, coupling)
+# def twoqutrits_SUtwo(gap: float, switching: float,separation: float, a: float, Qfunc, coupling: float) -> np.ndarray:
+#     """
+#     Python version of:
+#       twoqutritsSUtwo[Ω, σ,separation, a, Q, λ]
+#     where Q is a callable: Q(Ω, σ, a, λ)
+#     """
+#     Lval   = L(gap, switching, coupling)
+#     Labval = Lab(gap, switching,separation, coupling)
+#     Mval   = M(gap, switching,separation, coupling)
+#     Qval   = Qfunc(gap, switching, a, coupling)
 
-    return np.array([
-        [1 - 2*Lval,           0, np.conjugate(Qval), 0, np.conjugate(Mval), 0, np.conjugate(Qval), 0, 0],
-        [0,                    Lval, 0,               Labval, 0, 0, 0, 0, 0],
-        [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
-        [0,                    Labval, 0,             Lval,   0, 0, 0, 0, 0],
-        [Mval,                 0,    0,               0,      0, 0, 0, 0, 0],
-        [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-        [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
-        [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-        [0,                    0,    0,               0,      0, 0, 0, 0, 0],
-    ], dtype=complex)
+#     return np.array([
+#         [1 - 2*Lval,           0, np.conjugate(Qval), 0, np.conjugate(Mval), 0, np.conjugate(Qval), 0, 0],
+#         [0,                    Lval, 0,               Labval, 0, 0, 0, 0, 0],
+#         [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
+#         [0,                    Labval, 0,             Lval,   0, 0, 0, 0, 0],
+#         [Mval,                 0,    0,               0,      0, 0, 0, 0, 0],
+#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
+#         [Qval,                 0,    0,               0,      0, 0, 0, 0, 0],
+#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
+#         [0,                    0,    0,               0,      0, 0, 0, 0, 0],
+#     ], dtype=complex)
+
+# ---------- matrices ----------
+def rho_perturb(gap: float, switching: float, separation: float, regulator: float, regularization: str, detector_type: str, group: str) -> np.ndarray:
+    """
+    Compute the perturbative correction matrix for the detector state.
+
+    Parameters:
+        a (float): Regulator parameter
+
+    Returns:
+        np.ndarray: A 9x9 complex matrix representing the perturbative correction.
+    """
+
+    # Evaluate the component functions
+    L_value = L_term(gap, switching, detector_type, group)
+    Lab_value = Lab_term(gap, switching, separation, detector_type, group)
+    M_value = M_term(gap, switching, separation, detector_type) # Same for both groups SU2 and HW
+
+    # Initialize a 9x9 zero matrix
+    perturb_matrix = np.zeros((9, 9), dtype=complex)
+
+    if group == "SU2":
+        # Assign nonzero elements
+        Q_value = Q_term(gap, switching, regulator, regularization) # For point like and SU2 only
+        perturb_matrix[0, 0] = -2 * L_value
+        perturb_matrix[0, 2] = np.conjugate(Q_value)
+        perturb_matrix[0, 4] = np.conjugate(M_value)
+        perturb_matrix[0, 6] = np.conjugate(Q_value)
+
+        perturb_matrix[1, 1] = L_value
+        perturb_matrix[1, 3] = Lab_value
+
+        perturb_matrix[2, 0] = Q_value
+
+        perturb_matrix[3, 1] = Lab_value #not conjugating because already real
+        perturb_matrix[3, 3] = L_value
+
+        perturb_matrix[4, 0] = M_value
+
+        perturb_matrix[6, 0] = Q_value
+
+        # Remaining entries are zeros by default
+        return perturb_matrix
 
 # ----- utilities -----
 
