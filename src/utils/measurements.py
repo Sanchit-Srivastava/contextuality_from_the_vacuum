@@ -76,7 +76,7 @@ def empirical_model(rho):
             for b in range(3):
                 P = projectors[c][a][b] # projectors precomputed using the projector function outside the loop
                 E[9*c + (3 * a + b)] = np.trace(rho @ P).real # Born rule
-        tol = 1e-4  # Tolerance for slight numerical deviations
+        tol = 1e-11  # Tolerance for slight numerical deviations
         if np.sum(E[9*c:9*c+9]) > 1 + tol:
             print("Sum of entries for context", c, ":", np.sum(E[9*c:9*c+9]))
     return E

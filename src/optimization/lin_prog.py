@@ -27,13 +27,25 @@ def contextual_fraction(rho):
     # maximize 1.b  -> minimize -1.b
     
     c = -np.ones(M.shape[1])  # Objective vector: length 81
-    bounds = [(0, 1)] * M.shape[1]  # b >= 0, b <= 1
-    
+    bounds = [(0, 1)] # b >= 0, b < 1
+
     # Empirical data
     E = empirical_model(rho)
     
     # Solve using HiGHS
-    result = linprog(c, A_ub=M, b_ub=E, bounds=bounds, method='highs')
+    result = linprog(
+        c,
+        A_ub=M,
+        b_ub=E,
+        bounds=bounds,
+        method='highs',
+        options={
+            'primal_feasibility_tolerance': 1e-12,
+            'dual_feasibility_tolerance': 1e-12,
+            'ipm_optimality_tolerance': 1e-12,
+            'presolve': True,
+        },
+    )
     
     # === Output ===
     output = {
@@ -42,6 +54,8 @@ def contextual_fraction(rho):
     }
     
     if result.success:
-        output['b'] = 1 - np.dot(-c, result.x)
-    
+        # output['b'] = 1 - np.dot(-c, result.x)
+        #  output['b'] = 1 + result.fun
+       output['b'] = 1 + result.fun
+
     return output
