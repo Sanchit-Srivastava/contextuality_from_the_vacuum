@@ -1,5 +1,6 @@
 numpy
 scipy
 IPython
+matplotlib
 # Optional: for Jupytext notebook pairing/sync
 # jupytext
