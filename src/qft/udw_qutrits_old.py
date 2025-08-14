@@ -4,7 +4,7 @@
 import numpy as np
 from numpy import pi, sqrt
 from scipy import integrate, special
-from scipy.special import erf, erfc, wofz  # supports complex args; wofz for stable exp(-z^2) erfc(i z)
+from scipy.special import erf, erfc  # supports complex args
 
 
 try:
@@ -62,13 +62,13 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
         # def smearedL(Omega, T, R, *, 
         epsabs=1e-10
         epsrel=1e-8
-        limit=400
+        limit=200
         pre_factor = (9*switching**2) / (4*np.pi*smearing**2)
 
         def integrand(k):
             # Avoid 0/0 at k=0; the limit is 0 so return 0 explicitly
-            # if k == 0.0:
-            #     return 0.0
+            if k == 0.0:
+                return 0.0
             j1 = special.spherical_jn(1, k*smearing)
             return ((j1*j1) * np.exp(-0.5*(switching**2)*(k - gap)**2)) / k
 
@@ -116,7 +116,7 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
         # Smeared detectors
         epsabs=1e-10
         epsrel=1e-8
-        limit=400
+        limit=200
 
         pre_factor = (9*switching**2) / (4*np.pi*smearing**2)
 
@@ -161,20 +161,20 @@ def M_term(gap: float, switching: float, separation: float, smearing: float, det
     elif detector_type == "smeared":
         epsabs=1e-10
         epsrel=1e-8
-        limit=400
+        limit=200
         # adding -1 pre factor to eq. (4.15)
-        pre_factor = -1 * (9*switching**2) / (4*np.pi*smearing**2) * np.exp(-0.5*switching**2*gap**2)
+        pre_factor = -1 * (9*switching**2) / (4*np.pi*smearing**2) * np.exp(-0.5*smearing**2*gap**2)
         
+
         def integrand(k):
             # Avoid 0/0 at k=0; the limit is 0 so return 0 explicitly (complex)
             if k == 0.0:
                 return 0.0 + 0j
             j1 = special.spherical_jn(1, k*smearing)
             j0 = special.spherical_jn(0, k*separation)
-            # Stable product: exp(-z^2) * erfc(i z) with z = switching*k/sqrt(2)
-            z = switching * k / np.sqrt(2.0)
-            combo = wofz(-z)  # equals exp(-z^2) * erfc(i z)
-            return ((j1*j1) * combo * j0) / k
+            term =  special.erfc(1j*k*switching/sqrt(2))
+            gauss = np.exp(-0.5*switching**2*k**2)
+            return ((j1*j1) * term * gauss * j0) / k
 
         val = _quad_complex(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -210,7 +210,7 @@ def Q_term(gap: float, switching: float, regulator: float, regularization: str, 
     elif detector_type == "smeared": 
         epsabs=1e-10
         epsrel=1e-8
-        limit=400
+        limit=200
 
         # Adding a -1 pre factor to Eq. 4.10
         pre_factor = -1*(9*switching**2) / (8*np.pi*smearing**2) * np.exp(-0.5*switching**2*gap**2)
@@ -220,10 +220,9 @@ def Q_term(gap: float, switching: float, regulator: float, regularization: str, 
             if k == 0.0:
                 return 0.0 + 0j
             j1 = special.spherical_jn(1, k*smearing)
-            # Stable product: exp(-z^2) * erfc(i z) with z = switching*k/sqrt(2)
-            z = switching * k / np.sqrt(2.0)
-            combo = wofz(-z)  # equals exp(-z^2) * erfc(i z)
-            return ((j1*j1) * combo) / k
+            gauss = np.exp(-0.5*switching**2*k**2)
+            term = special.erfc(1j*k*switching/np.sqrt(2.0))  
+            return ((j1*j1) * term * gauss) / k
 
         val = _quad_complex(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -234,7 +233,7 @@ def V_term(gap: float, switching: float, smearing: float) -> complex:
     ''' for smeared detectors only'''
     epsabs=1e-10
     epsrel=1e-8 
-    limit=400
+    limit=200
 
     # Adding a prefactor of -1 to eq. 4.11
     pre_factor = -1 * (9*switching**2) / (8*np.pi*smearing**2) * np.exp((-1/8)*switching**2*gap**2)
@@ -245,10 +244,9 @@ def V_term(gap: float, switching: float, smearing: float) -> complex:
             return 0.0 + 0j
         j1 = special.spherical_jn(1, k*smearing)
         shift = k - 0.5*gap
-        # Stable product with shift: exp(-z^2) * erfc(i z) where z = switching*shift/sqrt(2)
-        z = switching * shift / np.sqrt(2.0)
-        combo = wofz(-z)
-        return ((j1*j1) * combo) / k
+        term = special.erfc((1j*switching/np.sqrt(2.0))*shift)
+        gauss_shift = np.exp(-0.5*switching**2*(k - gap)**2)
+        return ((j1*j1) * term * gauss_shift) / k
 
     val = _quad_complex(integrand, 0.0, np.inf,
                         epsabs=epsabs, epsrel=epsrel, limit=limit)
@@ -396,21 +394,6 @@ if __name__ == "__main__":
     # Test with QregDelta Q-function
     print("Testing with QregDelta Q-function:")
     print("-" * 30)
-    # Print component function outputs
-    L_val = L_term(gap, switching, smearing, detector_type, group)
-    print(f"L_term = {L_val}")
-
-    Lab_val = Lab_term(gap, switching, separation, smearing, detector_type, group)
-    print(f"Lab_term = {Lab_val}")
-
-    M_val = M_term(gap, switching, separation, smearing, detector_type)
-    print(f"M_term = {M_val}")
-
-    Q_val = Q_term(gap, switching, regulator, regularization, smearing, detector_type)
-    print(f"Q_term = {Q_val}  # (SU2-only physically; shown here for reference)")
-
-    V_val = V_term(gap, switching, smearing)
-    print(f"V_term = {V_val}")
 
     rho = detector_state(gap, switching, separation, regulator, smearing, regularization, detector_type, group, lam)
     # Print the state matrix
