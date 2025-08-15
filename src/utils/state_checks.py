@@ -1,10 +1,12 @@
-''' This module contains utility functions to validate quantum states'''
+# ''' This module contains utility functions to validate quantum states'''
 
 import numpy as np
 
 from .chop import chop 
 
-def is_valid_state(rho: np.ndarray, tolerance: float = 1e-10, 
+default_tolerance = 1e-10
+
+def is_valid_state(rho: np.ndarray, tolerance: float = default_tolerance, 
                    return_details: bool = False):
     """Check if a given matrix is a valid density matrix.
 
@@ -121,21 +123,21 @@ def print_validation_results(validation_results: dict, matrix_name: str = "Matri
     # Hermitian check
     if 'hermitian_deviation' in details:
         hermitian_dev = details['hermitian_deviation']
-        status = "✓" if hermitian_dev <= 1e-10 else "✗"
+        status = "✓" if hermitian_dev <= default_tolerance else "✗"
         print(f"Hermitian check {status}: Max deviation = {hermitian_dev:.2e}")
         
     # Trace check
     if 'trace' in details:
         trace_val = details['trace']
         trace_dev = details['trace_deviation']
-        status = "✓" if trace_dev <= 1e-10 else "✗"
+        status = "✓" if trace_dev <= default_tolerance else "✗"
         print(f"Trace check {status}: Tr(ρ) = {trace_val:.6f}, deviation = {trace_dev:.2e}")
     
     # Eigenvalue check
     if 'eigenvalues' in details:
         eigenvals = chop(details['eigenvalues'])
         min_eig = chop(details['min_eigenvalue'])
-        status = "✓" if min_eig >= -1e-10 else "✗"
+        status = "✓" if min_eig >= -default_tolerance else "✗"
         print(f"Positive semidefinite {status}: Min eigenvalue = {min_eig:.2e}")
         print(f"All eigenvalues: {eigenvals}")
     
@@ -153,7 +155,7 @@ def print_validation_results(validation_results: dict, matrix_name: str = "Matri
 
 
 def validate_and_print(rho: np.ndarray, matrix_name: str = "Matrix", 
-                       tolerance: float = 1e-10):
+                       tolerance: float = default_tolerance):
     """Validate a density matrix and print detailed results.
     
     Args:
