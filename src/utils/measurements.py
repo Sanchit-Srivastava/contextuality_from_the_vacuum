@@ -13,7 +13,7 @@ except ImportError:
 w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 
 # Function to calculate the measurement projectors for a given context
-def projector(c, a, b):
+def context_projector(c, a, b):
   """
   Calculate the measurement projector for a given context and output (a, b).
 
@@ -45,7 +45,7 @@ def projector(c, a, b):
   return P / 9 # Normalize by 9
   
 # Precompute all projectors: shape (40, 3, 3)
-projectors = [[[projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
+projectors = [[[context_projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
 
 # Function to calculate measurement statistics for all contexts
 def empirical_model(rho):
