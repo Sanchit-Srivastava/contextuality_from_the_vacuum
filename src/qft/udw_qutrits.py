@@ -378,45 +378,45 @@ def detector_state(gap: float, switching: float, separation: float, regulator: f
 
 if __name__ == "__main__":
     # Test parameters
-    gap = 1
-    switching = 1
+    gap = 1.0
+    switching = 1.0
     separation = 10
     regulator = 1
     regularization = "magical"
-    detector_type = "smeared"
+    detector_type = "point_like"
     smearing = 0.1
-    group = "HW"
+    group = "SU2"
     lam = 1e-2
 
-    print("Detector state")
-    print("=" * 50)
-    print(f"Parameters: gap={gap}, switching={switching}, separation={separation}, regulator={regulator}, regularization={regularization}, detector_type={detector_type}, group={group}, lambda={lam}")
-    print()
+    # print("Detector state")
+    # print("=" * 50)
+    # print(f"Parameters: gap={gap}, switching={switching}, separation={separation}, regulator={regulator}, regularization={regularization}, detector_type={detector_type}, group={group}, lambda={lam}")
+    # print()
     
-    # Test with QregDelta Q-function
-    print("Testing with QregDelta Q-function:")
-    print("-" * 30)
-    # Print component function outputs
-    L_val = L_term(gap, switching, smearing, detector_type, group)
-    print(f"L_term = {L_val}")
+    # # Test with QregDelta Q-function
+    # print("Testing with QregDelta Q-function:")
+    # print("-" * 30)
+    # # Print component function outputs
+    # L_val = L_term(gap, switching, smearing, detector_type, group)
+    # print(f"L_term = {L_val}")
 
-    Lab_val = Lab_term(gap, switching, separation, smearing, detector_type, group)
-    print(f"Lab_term = {Lab_val}")
+    # Lab_val = Lab_term(gap, switching, separation, smearing, detector_type, group)
+    # print(f"Lab_term = {Lab_val}")
 
-    M_val = M_term(gap, switching, separation, smearing, detector_type)
-    print(f"M_term = {M_val}")
+    # M_val = M_term(gap, switching, separation, smearing, detector_type)
+    # print(f"M_term = {M_val}")
 
-    Q_val = Q_term(gap, switching, regulator, regularization, smearing, detector_type)
-    print(f"Q_term = {Q_val}  # (SU2-only physically; shown here for reference)")
+    # Q_val = Q_term(gap, switching, regulator, regularization, smearing, detector_type)
+    # print(f"Q_term = {Q_val}  # (SU2-only physically; shown here for reference)")
 
-    V_val = V_term(gap, switching, smearing)
-    print(f"V_term = {V_val}")
+    # V_val = V_term(gap, switching, smearing)
+    # print(f"V_term = {V_val}")
 
     rho = detector_state(gap, switching, separation, regulator, smearing, regularization, detector_type, group, lam)
-    # Print the state matrix
-    print("Generated density matrix:")
-    print(rho)
-    print()
+    # # Print the state matrix
+    # print("Generated density matrix:")
+    # print(rho)
+    # print()
     
     # Check if it's a valid density matrix
     print("Density Matrix Validation:")
