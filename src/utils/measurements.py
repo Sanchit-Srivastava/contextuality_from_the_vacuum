@@ -12,6 +12,10 @@ except ImportError:
 
 w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 
+
+
+
+
 # Function to calculate the measurement projectors for a given context
 def context_projector(c, a, b):
   """
@@ -39,11 +43,12 @@ def context_projector(c, a, b):
       # if p == 0 and q == 0:
       #   continue
       exponent = (p * a + q * b) % 3 # Exponent for phase factor
-      op = operators.pauli(p * A[c] + q * B[c]) # Operator for (p, q) in context c
+      v = (p * A[c] + q * B[c]) % 3
+      op = operators.pauli(v) # Operator for (p, q) in context c
       term = w ** (-exponent) * op
-      P += term 
-  return P / 9 # Normalize by 9
-  
+      P += term
+  return (P + P.conj().T) / 18 #  Hermitianize and then normalize by 9
+
 # Precompute all projectors: shape (40, 3, 3)
 projectors = [[[context_projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
 
