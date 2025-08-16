@@ -14,7 +14,7 @@ def sp(u, v):
 
 def Weyl(u):
     u = np.array(u, int) % 3
-    return operators.pauli(u)
+    return operators.weyl(u)
 
 def test_weyl_algebra():
     for _ in range(100):

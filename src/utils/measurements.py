@@ -12,7 +12,24 @@ except ImportError:
 
 w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 
+# Projector for a single measurement 
+def projector(A: np.ndarray, r_a: int) -> np.ndarray:
+  """
+  Construct the normalized spectral projector associated with outcome r_a
+  for the operator defined by vector A (arithmetic modulo 3).
+  """
+  r = int(r_a) % 3
+  A_vec = np.asarray(A) % 3
 
+  # Initialize with correct shape and dtype
+  P = np.zeros_like(operators.weyl(0 * A_vec), dtype=complex)
+
+  for j in range(3):
+    phase = w ** (-(j * r))
+    op = operators.weyl((j * A_vec) % 3)
+    P += phase * op
+
+  return P / 3
 
 
 
@@ -23,7 +40,7 @@ def context_projector(c, a, b):
 
   For each pair (p, q), it performs the following steps:
     - Computes an exponent as (p * a + q * b) modulo 3.
-    - Constructs an operator using a combination of A[c] and B[c] via the pauli function.
+  - Constructs an operator using a combination of A[c] and B[c] via the weyl function.
     - Applies a phase factor by raising a global constant w to the power of the negative exponent.
     - Accumulates the resulting operator.
 
@@ -44,7 +61,7 @@ def context_projector(c, a, b):
       #   continue
       exponent = (p * a + q * b) % 3 # Exponent for phase factor
       v = (p * A[c] + q * B[c]) % 3
-      op = operators.pauli(v) # Operator for (p, q) in context c
+      op = operators.weyl(v) # Operator for (p, q) in context c
       term = w ** (-exponent) * op
       P += term
   return (P + P.conj().T) / 18 #  Hermitianize and then normalize by 9

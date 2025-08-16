@@ -9,7 +9,7 @@ X = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]) #Pauli X operator
 Z = np.array([[1, 0, 0], [0, w, 0], [0, 0, w**2]]) #Pauli Z operator
 
 #Function to generate the Heisenberg-Weyl operator from symplectic vectors
-def pauli(A):
+def weyl(A):
     """
     Generate the Heisenberg-Weyl operator from a symplectic vector.
     
