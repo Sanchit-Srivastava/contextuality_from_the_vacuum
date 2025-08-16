@@ -13,23 +13,24 @@ except ImportError:
 w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 
 # Projector for a single measurement 
-def projector(A: np.ndarray, r_a: int) -> np.ndarray:
+def projector(x: int, z: int, r_a: int) -> np.ndarray:
   """
   Construct the normalized spectral projector associated with outcome r_a
   for the operator defined by vector A (arithmetic modulo 3).
   """
   r = int(r_a) % 3
-  A_vec = np.asarray(A) % 3
+  x = int(x) % 3
+  z = int(z) % 3
 
   # Initialize with correct shape and dtype
-  P = np.zeros_like(operators.weyl(0 * A_vec), dtype=complex)
+  P = np.zeros_like(operators.pauli(0, 0), dtype=complex)
 
   for j in range(3):
     phase = w ** (-(j * r))
-    op = operators.weyl((j * A_vec) % 3)
+    op = operators.pauli(x, z)  # Pauli operator for (x, z)
     P += phase * op
 
-  return P / 3
+  return P + P.conj().T / 6 #Hermitianize and normalize 
 
 
 
