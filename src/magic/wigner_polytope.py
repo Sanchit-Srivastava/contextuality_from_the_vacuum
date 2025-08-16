@@ -16,29 +16,41 @@ for i in range(3):
 
 
 # Function to test inequality violations
-def wigner_ineq(rho):
+def wigner_inequalities(rho, tol=1e-12):
     """
-    Check the Wigner inequality for a given density matrix.
+    Return the maximum violation magnitude and the points where the inequality is violated.
 
-    The Wigner inequality states that for any valid quantum state,
-    the expectation value of the phase point operators must satisfy certain bounds.
+    Inequality checked: Tr[rho A_{i,j}] >= 0 for all phase-point operators A_{i,j}.
 
     Parameters
     ----------
     rho : numpy.ndarray
-        The density matrix representing the quantum state.
+        Density matrix.
+    tol : float
+        Numerical tolerance; values >= -tol are treated as satisfying the inequality.
 
     Returns
     -------
-    bool
-        True if the inequality is satisfied, False otherwise.
+    tuple[float, list[tuple[tuple[int, int], float]]]
+        (max_violation, violating_points), where:
+          - max_violation is the largest positive amount by which the inequality is violated (0 if none).
+          - violating_points is a list of ((i, j), value) for each violating phase point with value < -tol.
     """
-    # Compute the expectation values of the phase point operators
-    expectation_values = np.array([np.trace(rho @ A) for A in A_points])
+    # Expectation values (real up to numerical error)
+    expectation_values = np.real(np.array([np.trace(rho @ A) for A in A_points]))
 
-    # Check the Wigner inequality
-    # (This is a placeholder; the actual inequality conditions need to be implemented)
-    if np.all(expectation_values >= 0):
-        return True
-    else:
-        return False
+    # Identify violations (strictly below -tol)
+    violations_mask = expectation_values < -tol
+    if not np.any(violations_mask):
+        return 0.0, []
+
+    # Map flat indices to (i, j) coordinates
+    d = int(np.sqrt(A_points.shape[0]))
+    violating_points = []
+    for idx in np.flatnonzero(violations_mask):
+        i, j = divmod(idx, d)
+        violating_points.append(((i, j), expectation_values[idx]))
+
+    # Maximum violation magnitude
+    max_violation = float(np.max(-expectation_values[violations_mask]))
+    return max_violation, violating_points
