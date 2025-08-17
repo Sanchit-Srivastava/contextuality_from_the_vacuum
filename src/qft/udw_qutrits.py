@@ -43,17 +43,19 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
     if detector_type != "point_like" and detector_type != "smeared":
         raise ValueError("Unsupported detector_type")
     
-    if group == "HW":
-        effective_gap = gap
-    elif group == "SU2":
-        effective_gap = -gap
-    else:
-        raise ValueError("Unsupported group")
+    # if group == "HW":
+    #     effective_gap = gap
+    # elif group == "SU2":
+    #     effective_gap = -gap
+    # else:
+    #     raise ValueError("Unsupported group")
+
+    effective_gap = gap
 
     if detector_type == "point_like":
         # Point like detectors
         expr = np.exp(-0.5 * (switching * effective_gap) ** 2)
-        arg = switching * effective_gap / sqrt(2)
+        arg = -1*switching * effective_gap / sqrt(2)
         term = (1 / (4 * pi)) * (expr + sqrt(pi) * arg * (2 - erfc(arg)))
         return term
 
@@ -70,7 +72,7 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
             # if k == 0.0:
             #     return 0.0
             j1 = special.spherical_jn(1, k*smearing)
-            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k - effective_gap)**2)) / k
+            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k + effective_gap)**2)) / k
 
         val = integrate.quad(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)[0]
@@ -81,13 +83,15 @@ def L_term(gap: float, switching: float, smearing: float, detector_type: str, gr
 def Lab_term(gap: float, switching: float, separation: float, smearing: float, detector_type: str, group: str) -> complex:
     """Lab[Ω, σ, separation, λ]"""
     
-    # Determine effective gap based on group
-    if group == "HW":
-        effective_gap = gap
-    elif group == "SU2":
-        effective_gap = -gap
-    else:
-        raise ValueError(f"Unsupported group: {group}")
+    # # Determine effective gap based on group
+    # if group == "HW":
+    #     effective_gap = gap
+    # elif group == "SU2":
+    #     effective_gap = -gap
+    # else:
+    #     raise ValueError(f"Unsupported group: {group}")
+
+    effective_gap = gap
 
     # Pre-compute common terms
     sqrt_2 = sqrt(2)
@@ -100,15 +104,15 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
         pref *= np.exp(-1 * norm_separation**2)
 
         # Compute error function argument
-        erf_arg = 1j * norm_separation + (effective_gap * switching) / sqrt_2
+        erf_arg = 1j * norm_separation - (effective_gap * switching) / sqrt_2
 
         # Compute the main term
-        exp_term = np.exp(1j * separation * effective_gap)
+        exp_term = np.exp(-1j * separation * effective_gap)
         erf_term = erf(erf_arg)
         main_term = exp_term * erf_term
         
         # Combine terms
-        result = pref * (np.imag(main_term) + np.sin(effective_gap * separation))
+        result = pref * (np.imag(main_term) + np.sin(-1*effective_gap * separation))
         
         return result
 
@@ -126,7 +130,7 @@ def Lab_term(gap: float, switching: float, separation: float, smearing: float, d
                 return 0.0
             j1 = special.spherical_jn(1, k*smearing)
             j0 = special.spherical_jn(0, k*separation)
-            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k - effective_gap)**2) * j0)/ k
+            return ((j1*j1) * np.exp(-0.5*(switching**2)*(k + effective_gap)**2) * j0)/ k
 
         val = integrate.quad(integrand, 0.0, np.inf,
                             epsabs=epsabs, epsrel=epsrel, limit=limit)[0]
@@ -244,7 +248,7 @@ def V_term(gap: float, switching: float, smearing: float) -> complex:
         if k == 0.0:
             return 0.0 + 0j
         j1 = special.spherical_jn(1, k*smearing)
-        shift = k - 0.5*gap
+        shift = k + 0.5*gap
         # Stable product with shift: exp(-z^2) * erfc(i z) where z = switching*shift/sqrt(2)
         z = switching * shift / np.sqrt(2.0)
         combo = wofz(-z)
