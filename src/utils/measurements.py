@@ -16,8 +16,10 @@ w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
 def projector(x: int, z: int, r_a: int) -> np.ndarray:
   """
   Construct the normalized spectral projector associated with outcome r_a
-  for the operator defined by vector A (arithmetic modulo 3).
+  for the operator defined by x,z (arithmetic modulo 3).
   """
+
+  w = np.exp(2 * np.pi * 1j / 3) # Primitive cube root of unity
   r = int(r_a) % 3
   x = int(x) % 3
   z = int(z) % 3
@@ -25,12 +27,17 @@ def projector(x: int, z: int, r_a: int) -> np.ndarray:
   # Initialize with correct shape and dtype
   P = np.zeros_like(operators.pauli(0, 0), dtype=complex)
 
-  for j in range(3):
-    phase = w ** (-(j * r))
+  for i in range(3):
+    phase = w ** ((-1 * i * r) % 3)
     op = operators.pauli(x, z)  # Pauli operator for (x, z)
-    P += phase * op
-
-  return P + P.conj().T / 6 #Hermitianize and normalize 
+    op_power = np.linalg.matrix_power(op, i)
+    P += phase * op_power
+  # Check if valid projector
+  proj = P/3
+  if np.allclose(proj@proj,proj):
+      return proj
+  else:
+      raise ValueError(f"Invalid projector for ({x}, {z}, {r_a}): {proj}")
 
 
 
@@ -65,7 +72,11 @@ def context_projector(c, a, b):
       op = operators.weyl(v) # Operator for (p, q) in context c
       term = w ** (-exponent) * op
       P += term
-  return (P + P.conj().T) / 18 #  Hermitianize and then normalize by 9
+  proj = P/9
+  if np.allclose(proj @ proj, proj):
+      return proj
+  else:
+      raise ValueError(f"Invalid projector for context {c}, a={a}, b={b}: {proj}")
 
 # Precompute all projectors: shape (40, 3, 3)
 projectors = [[[context_projector(c, a, b) for b in range(3)] for a in range(3)] for c in range(40)]
