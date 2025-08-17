@@ -54,3 +54,5 @@ def wigner_inequalities(rho, tol=1e-12):
     # Maximum violation magnitude
     max_violation = float(np.max(-expectation_values[violations_mask]))
     return max_violation, violating_points
+
+# Backward-compatible alias for notebooks
