@@ -3,6 +3,6 @@ scipy>=1.14
 IPython>=8.12
 matplotlib>=3.7
 jupyter>=1.0
-warnings>=2.0
+pytest>=7.4
 # Optional: for Jupytext notebook pairing/sync (used by paired .py/.ipynb)
 # jupytext>=1.16
