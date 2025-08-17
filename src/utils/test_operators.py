@@ -2,15 +2,14 @@
 import numpy as np
 try:
     from . import operators
+    from .symplectic import symplectic_product as sp
 except ImportError:
     import operators
+    from symplectic import symplectic_product as sp
 
 w = np.exp(2j * np.pi / 3)
 
-def sp(u, v):
-    a, b, c, d = u
-    a2, b2, c2, d2 = v
-    return (a * b2 - b * a2 + c * d2 - d * c2) % 3
+# sp now imported from utils.symplectic
 
 def Weyl(u):
     u = np.array(u, int) % 3
@@ -21,9 +20,11 @@ def test_weyl_algebra():
         u = np.random.randint(0, 3, 4)
         v = np.random.randint(0, 3, 4)
         lhs = Weyl(u) @ Weyl(v)
-        rhs = (w ** (2 * sp(u, v))) * Weyl((u + v) % 3)
+        rhs = (w **  (1*sp(u, v))) * Weyl((v + u) % 3)
         assert np.allclose(lhs, rhs, atol=1e-12), f"Failed for u={u}, v={v}"
 
 if __name__ == "__main__":
     test_weyl_algebra()
     print("All Weyl algebra tests passed.")
+
+
