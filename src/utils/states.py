@@ -45,8 +45,8 @@ def tensor_state(alpha, beta):
     first_qutrit_rho = first_qutrit[:, np.newaxis] @ first_qutrit.conj().T[np.newaxis, :]
     # second_qutrit = np.array([1, 0, 0])        # |0⟩ on second qutrit
     second_qutrit = np.array([1, 0, 0])
-    second_qutrit_rho = second_qutrit[:, np.newaxis] @ second_qutrit.conj().T[np.newaxis, :]
-    # second_qutrit_rho = (1/3)*np.eye(3,3)
+    # second_qutrit_rho = second_qutrit[:, np.newaxis] @ second_qutrit.conj().T[np.newaxis, :]
+    second_qutrit_rho = (1/3)*np.eye(3,3)
 
     product_state = np.kron(first_qutrit_rho, first_qutrit_rho)
     return product_state
@@ -86,6 +86,6 @@ def get_default_test_states():
         "Maximally Entangled State": create_maximally_entangled_state(),
         "Tensor product state": tensor_state(alpha=1, beta=1),
         "Magic Test State": magic_test_state(-1),
-        "Custom State": custom_state(1/4, 3/4)
+        "Custom State": custom_state(1/2, 1/2)
     }
 
