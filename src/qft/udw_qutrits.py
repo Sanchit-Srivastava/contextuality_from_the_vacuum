@@ -379,17 +379,44 @@ def detector_state(gap: float, switching: float, separation: float, regulator: f
 
     return result
 
+#####Partial trace for testing#####
+
+def reduce_state(rho: np.ndarray) -> np.ndarray:
+    """
+    Partial trace over the second qutrit (B) of a 2-qutrit density matrix.
+
+    Parameters
+    ----------
+    rho : np.ndarray
+        9x9 density matrix for a 2-qutrit system (A⊗B), dtype complex recommended.
+
+    Returns
+    -------
+    np.ndarray
+        3x3 reduced density matrix for the first qutrit (A).
+    """
+    rho = np.asarray(rho)
+    if rho.shape != (9, 9):
+        raise ValueError("rho must be a 9x9 matrix for a 2-qutrit system.")
+
+    # Reshape to indices [i_A, i_B, j_A, j_B]
+    rho_reshaped = rho.reshape(3, 3, 3, 3)
+
+    # Trace over B: sum over i_B == j_B
+    rho_A = np.trace(rho_reshaped, axis1=1, axis2=3)  # shape (3,3)
+
+    return rho_A
 
 if __name__ == "__main__":
     # Test parameters
-    gap = 1.11
+    gap = 1.0
     switching = 1.0
     separation = 10
     regulator = 1
     regularization = "magical"
     detector_type = "smeared"
     smearing = 0.1
-    group = "HW"
+    group = "SU2"
     lam = 1e-3
 
     print("Detector state")
@@ -417,13 +444,19 @@ if __name__ == "__main__":
     print(f"V_term = {V_val}")
 
     rho = detector_state(gap, switching, separation, regulator, smearing, regularization, detector_type, group, lam)
+    rho_reduced = reduce_state(rho)
+
     # Print the state matrix
-    print("Generated density matrix:")
-    print(rho)
-    print()
+    print("Generated 2 qutrit density matrix:")
+    rho_2qp = (rho - rho0)*(1/lam**2)
+    print(rho_2qp)
+
+    print("Reduced density matrix (first qutrit):")
+    rho_1qp = (rho_reduced - reduce_state(rho0))*(1/lam**2)
+    print(rho_1qp)
 
     # Check if it's a valid density matrix
-    print("Density Matrix Validation:")
+    print("reduced Density Matrix Validation:")
     print("-" * 25)
 
-    validate_and_print(rho, "Generated Density Matrix")
+    validate_and_print(rho_reduced, "Generated Density Matrix")
