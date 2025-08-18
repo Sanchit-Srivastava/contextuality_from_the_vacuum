@@ -115,7 +115,7 @@ def check_weyl_product_rule_in_context(
         u = (p * A[c] + q * B[c]) % 3
         v = (p2 * A[c] + q2 * B[c]) % 3
         lhs = _weyl_in_context(c, p, q) @ _weyl_in_context(c, p2, q2)
-        phase = w ** (2 * sp(u, v))
+        phase = w ** (1 * sp(u, v))
         rhs = phase * _weyl_in_context(c, (p + p2) % 3, (q + q2) % 3)
         ok = np.allclose(lhs, rhs, atol=atol)
         if not ok:
