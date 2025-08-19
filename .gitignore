@@ -209,3 +209,7 @@ __marimo__/
 
 # VisualStudioCode
 .vscode/
+
+#Macos stuff
+**/.DS_Store
+**/Thumbs.db
