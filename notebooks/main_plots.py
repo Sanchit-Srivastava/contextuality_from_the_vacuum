@@ -103,8 +103,8 @@ assert np.allclose(reduce_state(rho_ME), np.eye(3)/3)
 
 # Fixed parameters
 switching = 1.0
-separation = 0
-smearing = 0.1
+separation = 0 #not using
+smearing = 0.01
 lam = 1e-3
 regulator = 1.0
 regularization = "heaviside"  # used by Q_term but detector_type/group decide which terms contribute
@@ -128,8 +128,8 @@ rho_types = [
         ]
 
 # Sweep gaps
-gaps = np.linspace(0.0, 5, 20)  # avoid zero to keep numerics well-behaved
-deez = [0, 0.1, 0.5, 1, 5]
+gaps = np.linspace(0.0, 1, 20)  # avoid zero to keep numerics well-behaved
+deez = [ 0.1, 0.2, 0.3, 0.4, 0.5]
 
 linestyles = [ "--", "-.", ":", (0, (3, 1, 1, 1))]  # Add more if needed
 
@@ -156,8 +156,190 @@ for idx, d in enumerate(deez):
                         # rho_final = np.kron(rho1, rho1)
                     elif rho_type == "product":
                         rho1 = reduce_state(rho)
-                        rho_final = np.kron(rho1, np.eye(3)*(1/3))
+                        # rho_final = np.kron(rho1, np.eye(3)*(1/3))
+                        rho_final = np.kron(rho1, rho1)
+                    
+                    res = contextual_fraction(rho_final) 
+
+                    if not res.get("success", False):
+                        cf_vals.append(np.nan)
+                    else:
+                        cf_vals.append(res.get("b", np.nan))
+                else:
+                    print("Invalid state detected at gap =", gap)
+                    validate_and_print(rho)
+                    break
+
+            cf_vals = np.array(cf_vals)
+            label = f"d={d}, {rho_type}"
+            linestyle = "-" if rho_type == "product" else linestyles[idx % len(linestyles)]
+            plt.plot(gaps, cf_vals, marker=".", lw=1.5, label=label, linestyle=linestyle)
+
+plt.xlabel(r"{Gap} $\Omega T$",fontsize=14)
+plt.ylabel(r"{Contextual fraction} CF",fontsize=14)
+plt.title(rf"(a) $d/\sigma={separation}$, $R/\sigma={smearing}$, $\lambda={lam}$",fontsize=14)
+plt.xticks(fontsize=13)
+plt.yticks(fontsize=13)
+plt.grid(True, alpha=0.3)
+plt.legend(title="Detector group and type")
+plt.tight_layout()
+# plt.savefig("contextual_fraction_vs_gap_different_models.pdf")
+plt.show()
+
+
+
+# %%
+'''This cell generates the plots for contextual fraction vs gap for different detector types.'''
+
+
+# Fixed parameters
+switching = 1.0
+separation = 0 #not using
+smearing = 0.01
+lam = 1e-3
+regulator = 1.0
+regularization = "heaviside"  # used by Q_term but detector_type/group decide which terms contribute
+
+group_types = [
+                # ("SU2", "point_like"), 
+                ("SU2", "smeared"), 
+                # ("HW", "smeared")
+                ]
+# labels = {
+#     # ("SU2", "point_like"): "SU(2), point like",
+#     ("SU2", "smeared"): "SU(2), smeared",
+#     # ("HW", "smeared"): "HW, smeared"
+# }
+
+plt.figure(figsize=(4.8,3.6))
+
+rho_types = [
+              "product",
+              "entangled"
+        ]
+
+# Sweep gaps
+gaps = np.linspace(0.0, 5, 20)  # avoid zero to keep numerics well-behaved
+deez = [ 0.1, 0.2, 0.3, 0.4, 0.5, 1]
+
+linestyles = [ "--", "-.", ":", (0, (3, 1, 1, 1))]  # Add more if needed
+
+for idx, d in enumerate(deez): 
+    linestyle = linestyles[idx % len(linestyles)]
+    for rho_type in rho_types:
+        for group, detector_type in group_types:
+            cf_vals = []
+            for gap in gaps:
+                rho = detector_state(
+                    gap=switching,
+                    switching=gap,
+                    separation=d,
+                    regulator=regulator,
+                    smearing=smearing,
+                    regularization=regularization,
+                    detector_type=detector_type,
+                    group=group,
+                    lam=lam,
+                )
+                if is_valid_state(rho):
+                    if rho_type == "entangled":
+                        rho_final = rho
                         # rho_final = np.kron(rho1, rho1)
+                    elif rho_type == "product":
+                        rho1 = reduce_state(rho)
+                        # rho_final = np.kron(rho1, np.eye(3)*(1/3))
+                        rho_final = np.kron(rho1, rho1)
+                    
+                    res = contextual_fraction(rho_final) 
+
+                    if not res.get("success", False):
+                        cf_vals.append(np.nan)
+                    else:
+                        cf_vals.append(res.get("b", np.nan))
+                else:
+                    print("Invalid state detected at gap =", gap)
+                    validate_and_print(rho)
+                    break
+
+            cf_vals = np.array(cf_vals)
+            label = f"d={d}, {rho_type}"
+            linestyle = "-" if rho_type == "product" else linestyles[idx % len(linestyles)]
+            plt.plot(gaps, cf_vals, marker=".", lw=1.5, label=label, linestyle=linestyle)
+
+plt.xlabel(r"{Gap} $\Omega T$",fontsize=14)
+plt.ylabel(r"{Contextual fraction} CF",fontsize=14)
+plt.title(rf"(a) $d/\sigma={separation}$, $R/\sigma={smearing}$, $\lambda={lam}$",fontsize=14)
+plt.xticks(fontsize=13)
+plt.yticks(fontsize=13)
+plt.grid(True, alpha=0.3)
+plt.legend(title="Detector group and type")
+plt.tight_layout()
+# plt.savefig("contextual_fraction_vs_gap_different_models.pdf")
+plt.show()
+
+
+
+# %%
+'''This cell generates the plots for contextual fraction vs gap for different detector types.'''
+
+
+# Fixed parameters
+switching = 1.0
+separation = 0 #not using
+smearing = 0.1
+lam = 1e-3
+regulator = 1.0
+regularization = "heaviside"  # used by Q_term but detector_type/group decide which terms contribute
+
+group_types = [
+                # ("SU2", "point_like"), 
+                ("SU2", "smeared"), 
+                # ("HW", "smeared")
+                ]
+# labels = {
+#     # ("SU2", "point_like"): "SU(2), point like",
+#     ("SU2", "smeared"): "SU(2), smeared",
+#     # ("HW", "smeared"): "HW, smeared"
+# }
+
+plt.figure(figsize=(4.8,3.6))
+
+rho_types = [
+              "product",
+              "entangled"
+        ]
+
+# Sweep gaps
+gaps = np.linspace(0.0, 5, 20)  # avoid zero to keep numerics well-behaved
+deez = [ 0.1, 0.2, 0.3, 0.4, 0.5, 1]
+
+linestyles = [ "--", "-.", ":", (0, (3, 1, 1, 1))]  # Add more if needed
+
+for idx, d in enumerate(deez): 
+    linestyle = linestyles[idx % len(linestyles)]
+    for rho_type in rho_types:
+        for group, detector_type in group_types:
+            cf_vals = []
+            for gap in gaps:
+                rho = detector_state(
+                    gap=switching,
+                    switching=gap,
+                    separation=d,
+                    regulator=regulator,
+                    smearing=smearing*d,
+                    regularization=regularization,
+                    detector_type=detector_type,
+                    group=group,
+                    lam=lam,
+                )
+                if is_valid_state(rho):
+                    if rho_type == "entangled":
+                        rho_final = rho
+                        # rho_final = np.kron(rho1, rho1)
+                    elif rho_type == "product":
+                        rho1 = reduce_state(rho)
+                        # rho_final = np.kron(rho1, np.eye(3)*(1/3))
+                        rho_final = np.kron(rho1, rho1)
                     
                     res = contextual_fraction(rho_final) 
 
