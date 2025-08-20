@@ -592,12 +592,12 @@ group_types = [
 plt.figure(figsize=(4.8,3.6))
 
 # Sweep gaps
-gaps = np.linspace(0.0, 4, 50)  # avoid zero to keep numerics well-behaved
+gaps = np.linspace(0.0, 4, 250)  # avoid zero to keep numerics well-behaved
 # deez = [0.1, 0.5, 1, 5]
 linestyles = [ "--", "-.", ":", (0, (3, 1, 1, 1))]  # Add more if needed
 # for idx, d in enumerate(deez): 
 
-linestyle = linestyles[idx % len(linestyles)]
+# linestyle = linestyles[idx % len(linestyles)]
 
 for group, detector_type in group_types:
     wn_vals = []  # max violation per gap
@@ -616,9 +616,10 @@ for group, detector_type in group_types:
         )
         if is_valid_state(rho):
             rho_1 = reduce_state(rho)  # reduce to first qutrit
-            max_violation, violating_points = wigner_inequalities(rho_1)
+            # max_violation, violating_points = wigner_inequalities(rho_1)
+            max_violation, violating_points, violation_sum = wigner_inequalities(rho_1, include_sum=True)
             # value = np.log(max_violation/3 + (1 + rho[0, 0])/2)
-            wn_vals.append(max_violation)
+            wn_vals.append(violation_sum * (1/3)* (1/lam**2))
             violated_points_list.append(violating_points)
             # if max_violation > 0:
                 # print(f"[{group}, {detector_type}] gap={gap:.3g}: violated points = {violating_points}")
@@ -628,8 +629,8 @@ for group, detector_type in group_types:
             break
 
     wn_vals = np.array(wn_vals)
-    label = f"d={d}"
-    plt.plot(gaps[:len(wn_vals)], wn_vals, lw=1.5, label=labels, color = colors[1])
+    # label = f"d={d}"
+    plt.plot(gaps[:len(wn_vals)], wn_vals, lw=1.5, color = colors[1])
 
 
 # plt.xlabel(r"{$\Omega T$",fontsize=14)
@@ -644,14 +645,113 @@ for group, detector_type in group_types:
 # # plt.savefig("wigner_negativity_vs_gap_different_models.pdf")
 # plt.show()
 plt.xlabel(r"$\Omega T$",fontsize=14)
-plt.ylabel(r"Wigner negativity",fontsize=14)
+plt.ylabel(r"N/$\lambda^2$",fontsize=14)
 plt.title(rf"$R/T={smearing}$",fontsize=14)
 plt.xticks(fontsize=13)
 plt.yticks(fontsize=13)
 plt.grid(True, alpha=0.1)
 plt.legend()
 plt.tight_layout()
-plt.savefig("magic_vs_gap_small_detectors.pdf")
+plt.savefig("magic_vs_gap_big_detectors.pdf")
+plt.show()
+
+# %% [markdown]
+# Appendix plot for magic:
+
+# %%
+'''This cell generates the plots for Wigner negativity vs gap for different detector types.'''
+
+
+# Fixed parameters
+switching = 1.0
+separation = 1.0
+smearing = 0.1
+lam = 1e-3
+regulator = 1
+regularization = "magical"  # used by Q_term but detector_type/group decide which terms contribute
+
+colors = ["#000000","#332288","#117733","#88CCEE","#DDCC77", "#CC6677", "#AA4499","#882255"]
+
+group_types = [ 
+                # ("SU2", "point_like"), 
+                ("SU2", "smeared"),
+                ("HW", "smeared")
+              ]
+labels = {
+#     # ("SU2", "point_like"): "SU(2), point like",
+    ("SU2", "smeared"): "SU(2)",
+    ("HW", "smeared"): "HW"
+}
+
+
+colors = ["#E1BE6A", "#40B0A6"]
+
+plt.figure(figsize=(4.8,3.6))
+
+# Sweep gaps
+gaps = np.linspace(0.0, 10, 250)  # avoid zero to keep numerics well-behaved
+# deez = [0.1, 0.5, 1, 5]
+linestyles = [ "--", "-.", ":", (0, (3, 1, 1, 1))]  # Add more if needed
+# for idx, d in enumerate(deez): 
+
+# linestyle = linestyles[idx % len(linestyles)]
+
+for group, detector_type in group_types:
+    wn_vals = []  # max violation per gap
+    violated_points_list = []  # list of violating (i,j) points per gap
+    for gap in gaps:
+        rho = detector_state(
+            gap=gap,
+            switching=switching,
+            separation=separation,
+            regulator=regulator,
+            smearing=smearing,
+            regularization=regularization,
+            detector_type=detector_type,
+            group=group,
+            lam=lam,
+        )
+        if is_valid_state(rho):
+            rho_1 = reduce_state(rho)  # reduce to first qutrit
+            # max_violation, violating_points = wigner_inequalities(rho_1)
+            max_violation, violating_points, violation_sum = wigner_inequalities(rho_1, include_sum=True)
+            # value = np.log(max_violation/3 + (1 + rho[0, 0])/2)
+            wn_vals.append(violation_sum * (1/3)* (1/lam**2))
+            violated_points_list.append(violating_points)
+            # if max_violation > 0:
+                # print(f"[{group}, {detector_type}] gap={gap:.3g}: violated points = {violating_points}")
+        else:
+            print("Invalid state detected at gap =", gap)
+            validate_and_print(rho)
+            break
+
+    wn_vals = np.array(wn_vals)
+    # label = f"d={d}"
+    # plt.plot(gaps[:len(wn_vals)], wn_vals, lw=1.5, labels = labels)
+    # plt.plot(gaps[:len(wn_vals)], wn_vals, lw=1.5, label=labels[(group, detector_type)], color = "#dbbf76")
+    plt.plot(gaps[:len(wn_vals)], wn_vals, lw=1.5, label=labels[(group, detector_type)],color=colors[0] if group == "SU2" else colors[1], linestyle="--" if group == "HW" else "-" )
+
+
+# plt.xlabel(r"{$\Omega T$",fontsize=14)
+# plt.ylabel(r"{Max Wigner inequality violation}",fontsize=14)
+# # plt.title(rf"(a) $d/\sigma={separation}$, $R/\sigma={smearing}$, $\lambda={lam}$",fontsize=14)
+# plt.title(rf"$R/T={smearing}$",fontsize=14)
+# plt.xticks(fontsize=13)
+# plt.yticks(fontsize=13)
+# plt.grid(True, alpha=0.3)
+# plt.legend(title="Detector group and type")
+# plt.tight_layout()
+# # plt.savefig("wigner_negativity_vs_gap_different_models.pdf")
+# plt.show()
+plt.xlabel(r"$\Omega T$",fontsize=14)
+plt.ylabel(r"N/$\lambda^2$",fontsize=14)
+plt.title(rf"$R/T={smearing}$",fontsize=14)
+plt.xticks(fontsize=13)
+plt.yticks(fontsize=13)
+plt.grid(True, alpha=0.1)
+plt.legend()
+plt.tight_layout()
+plt.savefig("magic_vs_gap_different_models.pdf")
 plt.show()
 
 # %%
