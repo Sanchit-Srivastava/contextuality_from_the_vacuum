@@ -446,17 +446,17 @@ if __name__ == "__main__":
     rho = detector_state(gap, switching, separation, regulator, smearing, regularization, detector_type, group, lam)
     rho_reduced = reduce_state(rho)
 
-    # Print the state matrix
-    print("Generated 2 qutrit density matrix:")
-    rho_2qp = (rho - rho0)*(1/lam**2)
-    print(rho_2qp)
-
-    print("Reduced density matrix (first qutrit):")
-    rho_1qp = (rho_reduced - reduce_state(rho0))*(1/lam**2)
-    print(rho_1qp)
-
-    # Check if it's a valid density matrix
-    print("reduced Density Matrix Validation:")
-    print("-" * 25)
-
-    validate_and_print(rho_reduced, "Generated Density Matrix")
+    # # Print the state matrix
+    # print("Generated 2 qutrit density matrix:")
+    # rho_2qp = (rho - rho0)*(1/lam**2)
+    # print(rho_2qp)
+    #
+    # print("Reduced density matrix (first qutrit):")
+    # rho_1qp = (rho_reduced - reduce_state(rho0))*(1/lam**2)
+    # print(rho_1qp)
+    #
+    # # Check if it's a valid density matrix
+    # print("reduced Density Matrix Validation:")
+    # print("-" * 25)
+    #
+    # validate_and_print(rho_reduced, "Generated Density Matrix")
