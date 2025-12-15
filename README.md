@@ -16,9 +16,8 @@ These instructions will get you a copy of the project up and running on your loc
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/contextuality_from_the_vacuum.git
+    git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
     cd contextuality_from_the_vacuum
-    ```
 
 2.  **Create a virtual environment (recommended):**
 
@@ -37,11 +36,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 The main plots from the paper can be reproduced by running the `plots/paper_plots.ipynb` Jupyter notebook.
 
-1.  **Start Jupyter Notebook:**
-
-    ```bash
-    jupyter notebook
-    ```
+1.  Open an IDE of your choice which supports Jupyter notebooks (e.g., JupyterLab, VSCode).
 
 2.  **Run the notebook:**
 
@@ -72,7 +67,6 @@ The main plots from the paper can be reproduced by running the `plots/paper_plot
 ## Citation
 
 If you use this code in your research, please cite the following paper:
+ 
+> arXiv:  	arXiv:2508.15001
 
-```
-[Citation information for the paper to appear here]
-```
