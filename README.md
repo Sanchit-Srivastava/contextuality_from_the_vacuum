@@ -36,11 +36,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 The main plots from the paper can be reproduced by running the `plots/paper_plots.ipynb` Jupyter notebook.
 
-1.  **Start Jupyter Notebook:**
-
-    ```bash
-    jupyter notebook
-    ```
+1.  Open an IDE of your choice which supports Jupyter notebooks (e.g., JupyterLab, VSCode).
 
 2.  **Run the notebook:**
 
