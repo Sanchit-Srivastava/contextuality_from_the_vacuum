@@ -71,6 +71,6 @@ The main plots from the paper can be reproduced by running the `plots/paper_plot
 ## Citation
 
 If you use this code in your research, please cite the following paper:
+ 
+> arXiv:  	arXiv:2508.15001
 
-``` arXiv:  	arXiv:2508.15001
-```
