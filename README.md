@@ -53,9 +53,9 @@ The easiest way to generate the plots is to use the provided Makefile, which wil
     ```
 
     This command will:
-    *   Generate the `plots/paper_plots.ipynb` notebook from the Python script
+    *   Generate a new `plots/paper_plots.ipynb` notebook from the `scripts/generate_notebook.py` script
     *   Execute the notebook to produce all the plots
-    *   Save the generated plots in the `plots/` directory
+    *   Save the generated plots in the `output/` directory (relative to where the notebook is executed)
 
 ### Method 2: Using the Existing Notebook (Manual)
 
@@ -69,7 +69,7 @@ Alternatively, you can manually run the pre-existing notebook in the `notebooks/
     *   Open `paper_plots.ipynb`.
     *   Run all the cells in the notebook.
 
-    The generated plots will be saved in the current working directory.
+    The generated plots will be saved in the same directory as the notebook (i.e., the `notebooks/` directory).
 
 ## Repository Structure
 
