@@ -34,25 +34,51 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Reproducing the Plots
 
-The main plots from the paper can be reproduced by running the `plots/paper_plots.ipynb` Jupyter notebook.
+The main plots from the paper can be reproduced using one of two methods:
+
+### Method 1: Using the Makefile (Automated)
+
+The easiest way to generate the plots is to use the provided Makefile, which will automatically generate and execute the notebook.
+
+1.  **Ensure you have a virtual environment activated:**
+
+    ```bash
+    source .venv/bin/activate  # On Windows, use `.venv\\Scripts\\activate`
+    ```
+
+2.  **Run the make command:**
+
+    ```bash
+    make plots
+    ```
+
+    This command will:
+    *   Generate the `plots/paper_plots.ipynb` notebook from the Python script
+    *   Execute the notebook to produce all the plots
+    *   Save the generated plots in the `plots/` directory
+
+### Method 2: Using the Existing Notebook (Manual)
+
+Alternatively, you can manually run the pre-existing notebook in the `notebooks/` directory.
 
 1.  Open an IDE of your choice which supports Jupyter notebooks (e.g., JupyterLab, VSCode).
 
 2.  **Run the notebook:**
 
-    *   Navigate to the `plots/` directory in the Jupyter interface.
+    *   Navigate to the `notebooks/` directory in the Jupyter interface.
     *   Open `paper_plots.ipynb`.
     *   Run all the cells in the notebook.
 
-    The generated plots will be saved in the `plots/output/` directory.
+    The generated plots will be saved in the current working directory.
 
 ## Repository Structure
 
 ```
 .
-├── plots/
-│   ├── paper_plots.ipynb       # Jupyter notebook to generate the paper plots
-│   └── output/                 # Directory for the generated plots
+├── notebooks/
+│   └── paper_plots.ipynb       # Pre-existing Jupyter notebook to generate the paper plots
+├── scripts/
+│   └── generate_notebook.py    # Script to programmatically generate the notebook
 ├── src/
 │   ├── magic/                  # Modules related to Wigner negativity
 │   ├── optimization/           # Modules for linear programming
@@ -60,6 +86,7 @@ The main plots from the paper can be reproduced by running the `plots/paper_plot
 │   └── utils/                  # Utility functions
 ├── .gitignore
 ├── LICENSE
+├── Makefile                    # Makefile for automated notebook generation and execution
 ├── README.md
 └── requirements.txt
 ```
