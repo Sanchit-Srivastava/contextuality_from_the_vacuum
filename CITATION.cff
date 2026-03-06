@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the paper."
+title: "Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors"
+version: 1.0.0
+authors:
+  - family-names: Lima
+    given-names: C.
+  - family-names: Preciado-Rivas
+    given-names: M. R.
+  - family-names: Srivastava
+    given-names: Sanchit
+repository-code: "https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum"
+license: MIT
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Lima
+      given-names: C.
+    - family-names: Preciado-Rivas
+      given-names: M. R.
+    - family-names: Srivastava
+      given-names: Sanchit
+  title: "Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors"
+  year: 2025
+  url: "https://arxiv.org/abs/2508.15001"
+  identifiers:
+    - type: other
+      value: "arXiv:2508.15001"
+      description: "arXiv preprint"
