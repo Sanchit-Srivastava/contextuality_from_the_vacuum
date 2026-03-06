@@ -11,34 +11,70 @@ make plots
 ```
 
 That single command creates a virtual environment, installs dependencies,
-and generates all four paper plots as PDFs in `plots/output/`.
+and generates all eight paper plots as PDFs in `plots/output/`.
 
 No LaTeX installation is required -- matplotlib's built-in math rendering
 is used by default.
 
 ## Makefile Targets
 
-| Target         | Description                                          |
-| -------------- | ---------------------------------------------------- |
-| `make help`    | List all available targets                           |
-| `make venv`    | Create a Python virtual environment in `.venv/`      |
-| `make install` | Install dependencies (creates venv if needed)        |
-| `make plots`   | Generate all plots as PDFs (no LaTeX required)       |
-| `make plots-latex` | Generate all plots with LaTeX rendering          |
-| `make notebook`| Generate and execute a Jupyter notebook              |
-| `make clean`   | Remove generated plots and notebook                  |
-| `make clean-all`| Remove plots, notebook, and virtual environment     |
+| Target              | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `make help`         | List all available targets                           |
+| `make venv`         | Create a Python virtual environment in `.venv/`      |
+| `make install`      | Install dependencies (creates venv if needed)        |
+| `make list-plots`   | Print all available plot names and descriptions      |
+| `make plots`        | Generate plots as PDFs (no LaTeX required)           |
+| `make plots-latex`  | Generate plots with LaTeX rendering                  |
+| `make notebook`     | Generate and execute a Jupyter notebook              |
+| `make clean`        | Remove generated plots and notebook                  |
+| `make clean-all`    | Remove plots, notebook, and virtual environment      |
 
-## Generating Individual Plots
+### Selecting which plots to generate
 
-The CLI script `scripts/plots.py` supports generating specific plots and
-shows a progress bar for each:
+Both `make plots` and `make plots-latex` accept an optional `PLOTS` variable
+containing a space-separated list of plot names. Omitting it generates all
+plots.
+
+```bash
+# Generate all plots (default)
+make plots
+
+# Generate a single plot
+make plots PLOTS="cf_large"
+
+# Generate a subset
+make plots PLOTS="cf_large wigner_small cf_fixed_romega"
+
+# Same with LaTeX rendering
+make plots-latex PLOTS="cf_large wigner_small"
+```
+
+Run `make list-plots` to see every available name.
+
+## Available Plots
+
+| Name                   | Paper figure | Description                                              |
+| ---------------------- | ------------ | -------------------------------------------------------- |
+| `cf_large`             | Fig 1(a)     | Contextual fraction vs gap (R/T=1, large detectors)      |
+| `cf_small`             | Fig 1(b)     | Contextual fraction vs gap (R/T=0.1, small detectors)    |
+| `wigner_large`         | Fig 1(c)     | Wigner negativity vs gap (R/T=1)                         |
+| `wigner_small`         | Fig 1(d)     | Wigner negativity vs gap (R/T=0.1, small detectors)      |
+| `cf_appendix`          | Fig 2(a)     | Contextual fraction, SU(2) vs HW (R/T=0.1, appendix)    |
+| `wigner_appendix`      | Fig 2(b)     | Wigner negativity, SU(2) vs HW (R/T=0.1, appendix)      |
+| `cf_fixed_romega`      | Fig 3(a)     | Contextual fraction, fixed RΩ=0.01, dΩ=20 (appendix C)  |
+| `wigner_fixed_romega`  | Fig 3(b)     | Wigner negativity, fixed RΩ=0.01, dΩ=20 (appendix C)    |
+
+## Generating Plots via the CLI Directly
+
+After running `make install`, the CLI script `scripts/plots.py` can be invoked
+directly for finer control:
 
 ```bash
 # List available plots
 .venv/bin/python scripts/plots.py --list
 
-# Generate only the large-detector contextual fraction plot
+# Generate a single plot
 .venv/bin/python scripts/plots.py --plot cf_large
 
 # Generate multiple specific plots
@@ -47,18 +83,9 @@ shows a progress bar for each:
 # Use LaTeX rendering
 .venv/bin/python scripts/plots.py --latex
 
-# Generate a Jupyter notebook instead of running directly
+# Generate a Jupyter notebook instead of PDFs
 .venv/bin/python scripts/plots.py --format notebook
 ```
-
-Available plot names:
-
-| Name              | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `cf_large`        | Contextual fraction vs gap (R/T=1, large detectors)     |
-| `cf_small`        | Contextual fraction vs gap (R/T=0.1, small detectors)   |
-| `wigner_large`    | Wigner negativity vs gap (R/T=1)                        |
-| `wigner_appendix` | Wigner negativity, SU(2) vs HW (R/T=0.1, appendix)     |
 
 ## Prerequisites
 
