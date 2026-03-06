@@ -2,7 +2,34 @@
 
 This repository contains the code to reproduce the plots in the paper [Contextuality from the vacuum](https://arxiv.org/abs/2508.15001).
 
-## Quick Start
+## Workflows
+
+There are two ways to reproduce the plots depending on your preference.
+
+### Jupyter notebook
+
+`notebooks/paper_plots.ipynb` is a self-contained, reader-friendly notebook
+that generates all eight paper figures inline.  Each plot has its own
+markdown section explaining the physical setup and the parameter choices.
+Open it in JupyterLab or VS Code and run all cells:
+
+```bash
+git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
+cd contextuality_from_the_vacuum
+pip install -r requirements.txt
+jupyter lab notebooks/paper_plots.ipynb
+```
+
+A pre-executed version of the notebook (with outputs included) is committed
+to the repository at each tagged release, so the plots can be browsed
+directly on GitHub or downloaded from the Zenodo archive without running any
+code.
+
+### Command-line (Make)
+
+If you prefer to generate the plots as PDFs from the command line, a single
+Make target handles everything — it creates a virtual environment, installs
+dependencies, and writes all eight PDFs to `plots/output/`:
 
 ```bash
 git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
@@ -10,10 +37,7 @@ cd contextuality_from_the_vacuum
 make plots
 ```
 
-That single command creates a virtual environment, installs dependencies,
-and generates all eight paper plots as PDFs in `plots/output/`.
-
-No LaTeX installation is required -- matplotlib's built-in math rendering
+No LaTeX installation is required — matplotlib's built-in math rendering
 is used by default.
 
 ## Makefile Targets
@@ -94,22 +118,30 @@ directly for finer control:
 
 Jupyter and LaTeX are **not** required for the default `make plots` target.
 
-## Notebook
+## Notebooks
 
-Running `make notebook` generates and executes `plots/paper_plots.ipynb`, which
-contains all eight plots with inline output. The notebook is re-generated from
-scratch each time, so it always reflects the current plot definitions.
+Two notebooks are included for different purposes.
 
-A pre-executed version of the notebook (with outputs included) is committed to
-the repository at each tagged release, so it can be browsed directly on GitHub
-or downloaded from the Zenodo archive without re-running the computations.
+**`notebooks/paper_plots.ipynb`** — the primary reader-facing notebook.
+It contains all eight plots with explicit inline code, so every parameter
+choice and computation is visible.  Each figure has a markdown section
+summarising the physics.  This is the recommended starting point for anyone
+who wants to understand or modify the plots.
+
+**`plots/paper_plots.ipynb`** — an auto-generated notebook produced by
+`make notebook`.  It calls into `scripts/plot_definitions.py` rather than
+containing explicit code, and is re-generated from scratch on each run.
+A pre-executed copy (with outputs) is committed to the repository at each
+tagged release for archival and Zenodo purposes.
 
 ## Repository Structure
 
 ```
 .
+├── notebooks/
+│   └── paper_plots.ipynb         # Reader-friendly notebook: all 8 plots with explanations
 ├── plots/
-│   └── paper_plots.ipynb         # Pre-executed notebook (committed at release tags)
+│   └── paper_plots.ipynb         # Auto-generated notebook (make notebook); committed at release tags
 ├── scripts/
 │   ├── plots.py                  # CLI entry point for plot generation
 │   ├── plot_definitions.py       # Plot functions (single source of truth)
