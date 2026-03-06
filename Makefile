@@ -3,7 +3,15 @@ VENV_DIR ?= .venv
 PIP      := $(VENV_DIR)/bin/pip
 PY       := $(VENV_DIR)/bin/python
 
-.PHONY: help venv install plots plots-latex notebook clean clean-all
+# Optional: space-separated list of plot names to generate.
+# Leave unset (or empty) to generate all plots.
+# Example: make plots PLOTS="cf_large wigner_small"
+PLOTS    ?=
+
+# Build the --plot flags from $(PLOTS), or nothing if PLOTS is empty.
+_PLOT_FLAGS := $(foreach p,$(PLOTS),--plot $(p))
+
+.PHONY: help venv install plots plots-latex list-plots notebook clean clean-all
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -24,13 +32,16 @@ install: venv  ## Install dependencies into the virtual environment
 
 # ---------- plots ----------
 
-plots: install  ## Generate all plots as PDFs (no LaTeX required)
-	mkdir -p plots/output
-	$(PY) scripts/plots.py --output-dir plots/output
+list-plots: install  ## List all available plot names
+	$(PY) scripts/plots.py --list
 
-plots-latex: install  ## Generate all plots with LaTeX rendering
+plots: install  ## Generate plots as PDFs (use PLOTS="name1 name2" to select; default: all)
 	mkdir -p plots/output
-	$(PY) scripts/plots.py --output-dir plots/output --latex
+	$(PY) scripts/plots.py --output-dir plots/output $(_PLOT_FLAGS)
+
+plots-latex: install  ## Generate plots with LaTeX rendering (use PLOTS="name1 name2" to select; default: all)
+	mkdir -p plots/output
+	$(PY) scripts/plots.py --output-dir plots/output --latex $(_PLOT_FLAGS)
 
 notebook: install  ## Generate and execute a Jupyter notebook with all plots
 	mkdir -p plots/output
