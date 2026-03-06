@@ -60,7 +60,7 @@ Run `make list-plots` to see every available name.
 | `cf_small`             | Fig 1(b)     | Contextual fraction vs gap (R/T=0.1, small detectors)    |
 | `wigner_large`         | Fig 1(c)     | Wigner negativity vs gap (R/T=1)                         |
 | `wigner_small`         | Fig 1(d)     | Wigner negativity vs gap (R/T=0.1, small detectors)      |
-| `cf_appendix`          | Fig 2(a)     | Contextual fraction, SU(2) vs HW (R/T=0.1, appendix)    |
+| `cf_appendix`          | Fig 2(a)     | Contextual fraction, SU(2) vs HW (d/T=10, R/T=0.1)      |
 | `wigner_appendix`      | Fig 2(b)     | Wigner negativity, SU(2) vs HW (R/T=0.1, appendix)      |
 | `cf_fixed_romega`      | Fig 3(a)     | Contextual fraction, fixed RΩ=0.01, dΩ=20 (appendix C)  |
 | `wigner_fixed_romega`  | Fig 3(b)     | Wigner negativity, fixed RΩ=0.01, dΩ=20 (appendix C)    |
@@ -94,12 +94,22 @@ directly for finer control:
 
 Jupyter and LaTeX are **not** required for the default `make plots` target.
 
+## Notebook
+
+Running `make notebook` generates and executes `plots/paper_plots.ipynb`, which
+contains all eight plots with inline output. The notebook is re-generated from
+scratch each time, so it always reflects the current plot definitions.
+
+A pre-executed version of the notebook (with outputs included) is committed to
+the repository at each tagged release, so it can be browsed directly on GitHub
+or downloaded from the Zenodo archive without re-running the computations.
+
 ## Repository Structure
 
 ```
 .
-├── notebooks/
-│   └── paper_plots.ipynb         # Pre-existing notebook (for interactive use)
+├── plots/
+│   └── paper_plots.ipynb         # Pre-executed notebook (committed at release tags)
 ├── scripts/
 │   ├── plots.py                  # CLI entry point for plot generation
 │   ├── plot_definitions.py       # Plot functions (single source of truth)
@@ -120,4 +130,4 @@ Jupyter and LaTeX are **not** required for the default `make plots` target.
 
 If you use this code in your research, please cite the following paper:
 
-> arXiv: arXiv:2508.15001
+> Lima, C., Preciado-Rivas, M. R., & Srivastava, S. (2025). *Contextuality from the vacuum*. arXiv:2508.15001. https://arxiv.org/abs/2508.15001

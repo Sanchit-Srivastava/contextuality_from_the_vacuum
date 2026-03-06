@@ -221,7 +221,6 @@ def plot_cf_large(
 
     out = _ensure_dir(output_dir) / "contextual_fraction_vs_gap_large_detectors.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -339,7 +338,6 @@ def plot_cf_small(
 
     out = _ensure_dir(output_dir) / "contextual_fraction_vs_gap_small_detectors.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -403,7 +401,6 @@ def plot_wigner_large(
 
     out = _ensure_dir(output_dir) / "magic_vs_gap_big_detectors.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -474,7 +471,6 @@ def plot_wigner_appendix(
 
     out = _ensure_dir(output_dir) / "magic_vs_gap_different_models.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -539,7 +535,6 @@ def plot_wigner_small(
 
     out = _ensure_dir(output_dir) / "magic_vs_gap_small_detectors.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -554,7 +549,7 @@ def plot_cf_appendix(
     use_latex: bool = False,
     progress_callback: ProgressCB = None,
 ) -> str:
-    """Contextual fraction comparing SU(2) and HW models (R/T = 0.1, appendix)."""
+    """Contextual fraction comparing SU(2) and HW models at d/T=10, R/T=0.1 (appendix A)."""
     _configure_matplotlib(use_latex)
 
     switching = 1.0
@@ -562,36 +557,34 @@ def plot_cf_appendix(
     lam = 1e-3
     regulator = 1.0
     regularization = "heaviside"
+    # Fixed separation: d/T = 10  →  separation = 2R + 10*T/sqrt(2) (N=10 spacelike criterion)
+    d_N = 10
+    separation = 2 * smearing + d_N / np.sqrt(2)
     group_types = [("SU2", "smeared"), ("HW", "smeared")]
     labels = {("SU2", "smeared"): "SU(2)", ("HW", "smeared"): "HW"}
-    colors = ["#E1BE6A", "#40B0A6"]
+    # SU(2): solid dark blue; HW: dashed gold — matching the paper
+    colors = {"SU2": "#40407a", "HW": "#E1BE6A"}
+    linestyles = {"SU2": "-", "HW": "--"}
     gaps = np.linspace(0.0, 10, 250)
-    deez = [5, 10]
-    linestyles = ["--", "-.", ":", (0, (3, 1, 1, 1)), (0, (1, 1))]
 
-    # 2 product sweeps + len(deez) entangled sweeps, each for both groups
-    total_sweeps = (2 + len(deez)) * len(group_types)
+    # One entangled sweep per group
+    total_sweeps = len(group_types)
     total_steps = total_sweeps * len(gaps)
     step = 0
 
     fig, ax = plt.subplots(figsize=(4.8, 3.6))
 
-    for group_idx, (group, detector_type) in enumerate(group_types):
-        color = colors[0] if group == "SU2" else colors[1]
-        ls_solid = "-" if group == "SU2" else "--"
-
-        # --- product state rho_a x rho_b ---
+    for group, detector_type in group_types:
         cf_vals = []
         for gap in gaps:
             rho = detector_state(
-                gap=gap, switching=switching, separation=0,
+                gap=gap, switching=switching, separation=separation,
                 regulator=regulator, smearing=smearing,
                 regularization=regularization,
                 detector_type=detector_type, group=group, lam=lam,
             )
             if is_valid_state(rho):
-                rho1 = reduce_state(rho)
-                res = contextual_fraction(np.kron(rho1, rho1))
+                res = contextual_fraction(rho)
                 cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
             else:
                 cf_vals.append(np.nan)
@@ -599,69 +592,22 @@ def plot_cf_appendix(
             if progress_callback:
                 progress_callback(step, total_steps)
         cf_vals = np.array(cf_vals) / lam**2
-        lbl = rf"$\hat{{\rho}}_a \otimes \hat{{\rho}}_b$, {labels[(group, detector_type)]}"
-        ax.plot(gaps, cf_vals, lw=1.5, label=lbl, linestyle=ls_solid, color=color)
-
-        # --- product state rho_a x |0><0| ---
-        cf_vals = []
-        for gap in gaps:
-            rho = detector_state(
-                gap=gap, switching=switching, separation=0,
-                regulator=regulator, smearing=smearing,
-                regularization=regularization,
-                detector_type=detector_type, group=group, lam=lam,
-            )
-            if is_valid_state(rho):
-                rho1 = reduce_state(rho)
-                res = contextual_fraction(np.kron(rho1, (1 / 3) * np.eye(3)))
-                cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
-            else:
-                cf_vals.append(np.nan)
-            step += 1
-            if progress_callback:
-                progress_callback(step, total_steps)
-        cf_vals = np.array(cf_vals) / lam**2
-        lbl = rf"$\hat{{\rho}}_a \otimes |0\rangle\langle 0|$, {labels[(group, detector_type)]}"
-        ax.plot(gaps, cf_vals, lw=1.5, label=lbl,
-                linestyle=(0, (1, 1)) if group == "SU2" else (0, (5, 1)),
-                color=color)
-
-        # --- entangled states ---
-        for idx, d in enumerate(deez):
-            cf_vals = []
-            for gap in gaps:
-                rho = detector_state(
-                    gap=gap, switching=switching,
-                    separation=2 * smearing + d / np.sqrt(2),
-                    regulator=regulator, smearing=smearing,
-                    regularization=regularization,
-                    detector_type=detector_type, group=group, lam=lam,
-                )
-                if is_valid_state(rho):
-                    res = contextual_fraction(rho)
-                    cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
-                else:
-                    cf_vals.append(np.nan)
-                step += 1
-                if progress_callback:
-                    progress_callback(step, total_steps)
-            cf_vals = np.array(cf_vals) / lam**2
-            lbl = rf"$\hat{{\rho}}_{{ab}}$, $d=2R+{d}T/\sqrt{{2}}$, {labels[(group, detector_type)]}"
-            ax.plot(gaps, cf_vals, lw=1.5, label=lbl,
-                    linestyle=linestyles[idx % len(linestyles)],
-                    color=color)
+        ax.plot(gaps, cf_vals, lw=1.5,
+                label=labels[(group, detector_type)],
+                linestyle=linestyles[group],
+                color=colors[group])
 
     ax.set_xlabel(r"$\Omega T$", fontsize=14)
     ax.set_ylabel(r"CF/$\lambda^2$", fontsize=14)
-    ax.set_title(rf"$R/T={smearing}$", fontsize=14)
+    ax.set_title(rf"$d/T={d_N}$, $R/T={smearing}$", fontsize=14)
     ax.tick_params(labelsize=13)
     ax.grid(True, alpha=0.1)
-    ax.legend(fontsize=7)
+    legend = ax.legend(fontsize=11, title="Internal dynamics")
+    legend.get_title().set_fontsize(11)
     fig.tight_layout()
 
     out = _ensure_dir(output_dir) / "contextual_fraction_su2_vs_hw.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -683,106 +629,56 @@ def plot_cf_fixed_romega(
     lam = 1e-3
     regulator = 1.0
     regularization = "heaviside"
-    group_types = [("SU2", "smeared")]
+    group = "SU2"
+    detector_type = "smeared"
     R_omega = 0.01
     d_omega = 20.0
-    # Avoid gap=0 (would give R→∞); start from a small positive value.
-    gaps = np.linspace(0.01, 4, 250)
-    colors = COLORS_MAIN
-    linestyles = ["--", "-.", ":", (0, (3, 1, 1, 1)), (0, (1, 1))]
+    # x-axis matches the paper: 0 to 5
+    gaps = np.linspace(0.0, 5, 250)
 
-    # 2 product sweeps + 1 entangled sweep (single fixed dΩ)
-    total_sweeps = 2 + 1
-    total_steps = total_sweeps * len(gaps) * len(group_types)
+    # Single entangled sweep
+    total_steps = len(gaps)
     step = 0
 
     fig, ax = plt.subplots(figsize=(4.8, 3.6))
 
-    for group, detector_type in group_types:
-
-        # --- product state rho_a x rho_b ---
-        cf_vals = []
-        for gap in gaps:
-            smearing = R_omega / gap
-            rho = detector_state(
-                gap=gap, switching=switching, separation=0,
-                regulator=regulator, smearing=smearing,
-                regularization=regularization,
-                detector_type=detector_type, group=group, lam=lam,
-            )
-            if is_valid_state(rho):
-                rho1 = reduce_state(rho)
-                res = contextual_fraction(np.kron(rho1, rho1))
-                cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
-            else:
-                cf_vals.append(np.nan)
+    # --- entangled state at fixed d*Omega and R*Omega ---
+    cf_vals = []
+    for gap in gaps:
+        if gap == 0.0:
+            cf_vals.append(np.nan)
             step += 1
             if progress_callback:
                 progress_callback(step, total_steps)
-        cf_vals = np.array(cf_vals) / lam**2
-        ax.plot(gaps, cf_vals, lw=1.5,
-                label=r"$\hat{\rho}_a \otimes \hat{\rho}_b$",
-                linestyle="-", color=colors[1])
-
-        # --- product state rho_a x |0><0| ---
-        cf_vals = []
-        for gap in gaps:
-            smearing = R_omega / gap
-            rho = detector_state(
-                gap=gap, switching=switching, separation=0,
-                regulator=regulator, smearing=smearing,
-                regularization=regularization,
-                detector_type=detector_type, group=group, lam=lam,
-            )
-            if is_valid_state(rho):
-                rho1 = reduce_state(rho)
-                res = contextual_fraction(np.kron(rho1, (1 / 3) * np.eye(3)))
-                cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
-            else:
-                cf_vals.append(np.nan)
-            step += 1
-            if progress_callback:
-                progress_callback(step, total_steps)
-        cf_vals = np.array(cf_vals) / lam**2
-        ax.plot(gaps, cf_vals, lw=1.5,
-                label=r"$\hat{\rho}_a \otimes |0\rangle\langle 0|$",
-                linestyle="-", color=colors[0])
-
-        # --- entangled state at fixed d*Omega ---
-        cf_vals = []
-        for gap in gaps:
-            smearing = R_omega / gap
-            separation = d_omega / gap
-            rho = detector_state(
-                gap=gap, switching=switching, separation=separation,
-                regulator=regulator, smearing=smearing,
-                regularization=regularization,
-                detector_type=detector_type, group=group, lam=lam,
-            )
-            if is_valid_state(rho):
-                res = contextual_fraction(rho)
-                cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
-            else:
-                cf_vals.append(np.nan)
-            step += 1
-            if progress_callback:
-                progress_callback(step, total_steps)
-        cf_vals = np.array(cf_vals) / lam**2
-        ax.plot(gaps, cf_vals, lw=1.5,
-                label=rf"$\hat{{\rho}}_{{ab}}$, $R\Omega={R_omega}$, $d\Omega={d_omega:.0f}$",
-                linestyle=linestyles[0], color=colors[2])
+            continue
+        smearing = R_omega / gap
+        separation = d_omega / gap
+        rho = detector_state(
+            gap=gap, switching=switching, separation=separation,
+            regulator=regulator, smearing=smearing,
+            regularization=regularization,
+            detector_type=detector_type, group=group, lam=lam,
+        )
+        if is_valid_state(rho):
+            res = contextual_fraction(rho)
+            cf_vals.append(res.get("b", np.nan) if res.get("success") else np.nan)
+        else:
+            cf_vals.append(np.nan)
+        step += 1
+        if progress_callback:
+            progress_callback(step, total_steps)
+    cf_vals = np.array(cf_vals) / lam**2
+    ax.plot(gaps, cf_vals, lw=1.5, color="#40407a")
 
     ax.set_xlabel(r"$\Omega T$", fontsize=14)
     ax.set_ylabel(r"CF/$\lambda^2$", fontsize=14)
     ax.set_title(rf"$R\Omega={R_omega}$, $d\Omega={d_omega:.0f}$", fontsize=14)
     ax.tick_params(labelsize=13)
     ax.grid(True, alpha=0.1)
-    ax.legend()
     fig.tight_layout()
 
     out = _ensure_dir(output_dir) / "contextual_fraction_fixed_romega.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
@@ -850,7 +746,6 @@ def plot_wigner_fixed_romega(
 
     out = _ensure_dir(output_dir) / "magic_vs_gap_fixed_romega.pdf"
     fig.savefig(str(out))
-    plt.close(fig)
     return str(out)
 
 
