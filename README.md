@@ -1,92 +1,90 @@
 # Contextuality from the Vacuum
 
-This repository contains the code to reproduce the plots in the paper [Contextuality from the vacuum](https://arxiv.org/abs/2508.15001)
+This repository contains the code to reproduce the plots in the paper [Contextuality from the vacuum](https://arxiv.org/abs/2508.15001).
 
-## Getting Started
+## Quick Start
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+```bash
+git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
+cd contextuality_from_the_vacuum
+make plots
+```
 
-### Prerequisites
+That single command creates a virtual environment, installs dependencies,
+and generates all four paper plots as PDFs in `plots/output/`.
 
-*   Python 3.8+
-*   Jupyter Notebook or JupyterLab
+No LaTeX installation is required -- matplotlib's built-in math rendering
+is used by default.
 
-### Installation
+## Makefile Targets
 
-1.  **Clone the repository:**
+| Target         | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| `make help`    | List all available targets                           |
+| `make venv`    | Create a Python virtual environment in `.venv/`      |
+| `make install` | Install dependencies (creates venv if needed)        |
+| `make plots`   | Generate all plots as PDFs (no LaTeX required)       |
+| `make plots-latex` | Generate all plots with LaTeX rendering          |
+| `make notebook`| Generate and execute a Jupyter notebook              |
+| `make clean`   | Remove generated plots and notebook                  |
+| `make clean-all`| Remove plots, notebook, and virtual environment     |
 
-    ```bash
-    git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
-    cd contextuality_from_the_vacuum
+## Generating Individual Plots
 
-2.  **Create a virtual environment (recommended):**
+The CLI script `scripts/plots.py` supports generating specific plots and
+shows a progress bar for each:
 
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows, use `.venv\\Scripts\\activate`
-    ```
+```bash
+# List available plots
+.venv/bin/python scripts/plots.py --list
 
-3.  **Install the required dependencies:**
+# Generate only the large-detector contextual fraction plot
+.venv/bin/python scripts/plots.py --plot cf_large
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Generate multiple specific plots
+.venv/bin/python scripts/plots.py --plot cf_large --plot wigner_large
 
-## Reproducing the Plots
+# Use LaTeX rendering
+.venv/bin/python scripts/plots.py --latex
 
-The main plots from the paper can be reproduced using one of two methods:
+# Generate a Jupyter notebook instead of running directly
+.venv/bin/python scripts/plots.py --format notebook
+```
 
-### Method 1: Using the Makefile (Automated)
+Available plot names:
 
-The easiest way to generate the plots is to use the provided Makefile, which will automatically generate and execute the notebook.
+| Name              | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `cf_large`        | Contextual fraction vs gap (R/T=1, large detectors)     |
+| `cf_small`        | Contextual fraction vs gap (R/T=0.1, small detectors)   |
+| `wigner_large`    | Wigner negativity vs gap (R/T=1)                        |
+| `wigner_appendix` | Wigner negativity, SU(2) vs HW (R/T=0.1, appendix)     |
 
-1.  **Ensure you have a virtual environment activated:**
+## Prerequisites
 
-    ```bash
-    source .venv/bin/activate  # On Windows, use `.venv\\Scripts\\activate`
-    ```
+- Python 3.8+
+- GNU Make
 
-2.  **Run the make command:**
-
-    ```bash
-    make plots
-    ```
-
-    This command will:
-    *   Generate a new `plots/paper_plots.ipynb` notebook from the `scripts/generate_notebook.py` script
-    *   Execute the notebook to produce all the plots
-    *   Save the generated plots in the `output/` directory (relative to where the notebook is executed)
-
-### Method 2: Using the Existing Notebook (Manual)
-
-Alternatively, you can manually run the pre-existing notebook in the `notebooks/` directory.
-
-1.  Open an IDE of your choice which supports Jupyter notebooks (e.g., JupyterLab, VSCode).
-
-2.  **Run the notebook:**
-
-    *   Navigate to the `notebooks/` directory in the Jupyter interface.
-    *   Open `paper_plots.ipynb`.
-    *   Run all the cells in the notebook.
-
-    The generated plots will be saved in the same directory as the notebook (i.e., the `notebooks/` directory).
+Jupyter and LaTeX are **not** required for the default `make plots` target.
 
 ## Repository Structure
 
 ```
 .
 ├── notebooks/
-│   └── paper_plots.ipynb       # Pre-existing Jupyter notebook to generate the paper plots
+│   └── paper_plots.ipynb         # Pre-existing notebook (for interactive use)
 ├── scripts/
-│   └── generate_notebook.py    # Script to programmatically generate the notebook
+│   ├── plots.py                  # CLI entry point for plot generation
+│   ├── plot_definitions.py       # Plot functions (single source of truth)
+│   └── generate_notebook.py      # Generates plots/paper_plots.ipynb
 ├── src/
-│   ├── magic/                  # Modules related to Wigner negativity
-│   ├── optimization/           # Modules for linear programming
-│   ├── qft/                    # Modules for quantum field theory calculations
-│   └── utils/                  # Utility functions
+│   ├── magic/                    # Wigner negativity / discrete Wigner function
+│   ├── optimization/             # Linear programming for contextual fraction
+│   ├── qft/                      # UDW qutrit detector state computation
+│   └── utils/                    # Operators, contexts, measurements, state checks
 ├── .gitignore
 ├── LICENSE
-├── Makefile                    # Makefile for automated notebook generation and execution
+├── Makefile
 ├── README.md
 └── requirements.txt
 ```
@@ -94,6 +92,5 @@ Alternatively, you can manually run the pre-existing notebook in the `notebooks/
 ## Citation
 
 If you use this code in your research, please cite the following paper:
- 
-> arXiv:  	arXiv:2508.15001
 
+> arXiv: arXiv:2508.15001
