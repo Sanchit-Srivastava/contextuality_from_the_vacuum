@@ -1,99 +1,128 @@
-# Contextuality from the Vacuum
+# Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors
 
-This repository contains the code to reproduce the plots in the paper [Contextuality from the vacuum](https://arxiv.org/abs/2508.15001)
-
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-*   Python 3.8+
-*   Jupyter Notebook or JupyterLab
-
-### Installation
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
-    cd contextuality_from_the_vacuum
-
-2.  **Create a virtual environment (recommended):**
-
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows, use `.venv\\Scripts\\activate`
-    ```
-
-3.  **Install the required dependencies:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
+Code to reproduce the figures in [Lima, Preciado-Rivas & Srivastava (2025), *Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors*, arXiv:2508.15001](https://arxiv.org/abs/2508.15001).
 
 ## Reproducing the Plots
 
-The main plots from the paper can be reproduced using one of two methods:
+### Jupyter notebook
 
-### Method 1: Using the Makefile (Automated)
+`notebooks/paper_plots.ipynb` generates all eight paper figures inline.
 
-The easiest way to generate the plots is to use the provided Makefile, which will automatically generate and execute the notebook.
+```bash
+git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
+cd contextuality_from_the_vacuum
+pip install -r requirements.txt
+jupyter lab notebooks/paper_plots.ipynb
+```
 
-1.  **Ensure you have a virtual environment activated:**
+### Command-line (Make)
 
-    ```bash
-    source .venv/bin/activate  # On Windows, use `.venv\\Scripts\\activate`
-    ```
+`make plots` creates a virtual environment, installs dependencies, and writes
+all eight PDFs to `plots/output/`:
 
-2.  **Run the make command:**
+```bash
+git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
+cd contextuality_from_the_vacuum
+make plots
+```
 
-    ```bash
-    make plots
-    ```
+LaTeX is not required; matplotlib's built-in math rendering is used by default.
 
-    This command will:
-    *   Generate a new `plots/paper_plots.ipynb` notebook from the `scripts/generate_notebook.py` script
-    *   Execute the notebook to produce all the plots
-    *   Save the generated plots in the `output/` directory (relative to where the notebook is executed)
+## Makefile Targets
 
-### Method 2: Using the Existing Notebook (Manual)
+| Target              | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `make help`         | List all available targets                           |
+| `make venv`         | Create a Python virtual environment in `.venv/`      |
+| `make install`      | Install dependencies (creates venv if needed)        |
+| `make list-plots`   | Print all available plot names and descriptions      |
+| `make plots`        | Generate plots as PDFs (no LaTeX required)           |
+| `make plots-latex`  | Generate plots with LaTeX rendering                  |
+| `make notebook`     | Generate and execute a Jupyter notebook              |
+| `make clean`        | Remove generated plots and notebook                  |
+| `make clean-all`    | Remove plots, notebook, and virtual environment      |
 
-Alternatively, you can manually run the pre-existing notebook in the `notebooks/` directory.
+`make plots` and `make plots-latex` accept an optional `PLOTS` variable
+(space-separated plot names); omitting it generates all plots.
 
-1.  Open an IDE of your choice which supports Jupyter notebooks (e.g., JupyterLab, VSCode).
+```bash
+make plots
+make plots PLOTS="cf_large"
+make plots PLOTS="cf_large wigner_small cf_fixed_romega"
+make plots-latex PLOTS="cf_large wigner_small"
+```
 
-2.  **Run the notebook:**
+Run `make list-plots` to see all available names.
 
-    *   Navigate to the `notebooks/` directory in the Jupyter interface.
-    *   Open `paper_plots.ipynb`.
-    *   Run all the cells in the notebook.
+## Available Plots
 
-    The generated plots will be saved in the same directory as the notebook (i.e., the `notebooks/` directory).
+| Name                   | Paper figure | Description                                              |
+| ---------------------- | ------------ | -------------------------------------------------------- |
+| `cf_large`             | Fig 1(a)     | Contextual fraction vs gap (R/T=1, large detectors)      |
+| `cf_small`             | Fig 1(b)     | Contextual fraction vs gap (R/T=0.1, small detectors)    |
+| `wigner_large`         | Fig 1(c)     | Wigner negativity vs gap (R/T=1)                         |
+| `wigner_small`         | Fig 1(d)     | Wigner negativity vs gap (R/T=0.1, small detectors)      |
+| `cf_appendix`          | Fig 2(a)     | Contextual fraction, SU(2) vs HW (d/T=10, R/T=0.1)      |
+| `wigner_appendix`      | Fig 2(b)     | Wigner negativity, SU(2) vs HW (R/T=0.1, appendix)      |
+| `cf_fixed_romega`      | Fig 3(a)     | Contextual fraction, fixed RΩ=0.01, dΩ=20 (appendix C)  |
+| `wigner_fixed_romega`  | Fig 3(b)     | Wigner negativity, fixed RΩ=0.01, dΩ=20 (appendix C)    |
+
+## CLI Script
+
+After `make install`, `scripts/plots.py` can be invoked directly:
+
+```bash
+.venv/bin/python scripts/plots.py --list
+.venv/bin/python scripts/plots.py --plot cf_large
+.venv/bin/python scripts/plots.py --plot cf_large --plot wigner_large
+.venv/bin/python scripts/plots.py --latex
+.venv/bin/python scripts/plots.py --format notebook
+```
+
+## Prerequisites
+
+- Python 3.8+
+- GNU Make
+
+Jupyter and LaTeX are not required for the default `make plots` target.
+
+## Notebooks
+
+**`notebooks/paper_plots.ipynb`** — inline code for all eight figures with
+parameter details in each section's markdown header.
+
+**`plots/paper_plots.ipynb`** — auto-generated by `make notebook`; calls into
+`scripts/plot_definitions.py` rather than containing explicit code.
 
 ## Repository Structure
 
 ```
 .
 ├── notebooks/
-│   └── paper_plots.ipynb       # Pre-existing Jupyter notebook to generate the paper plots
+│   └── paper_plots.ipynb         # Inline notebook: all 8 plots
+├── plots/
+│   └── paper_plots.ipynb         # Auto-generated notebook (make notebook)
 ├── scripts/
-│   └── generate_notebook.py    # Script to programmatically generate the notebook
+│   ├── plots.py                  # CLI entry point for plot generation
+│   ├── plot_definitions.py       # Plot functions
+│   └── generate_notebook.py      # Generates plots/paper_plots.ipynb
 ├── src/
-│   ├── magic/                  # Modules related to Wigner negativity
-│   ├── optimization/           # Modules for linear programming
-│   ├── qft/                    # Modules for quantum field theory calculations
-│   └── utils/                  # Utility functions
+│   ├── magic/                    # Wigner negativity / discrete Wigner function
+│   ├── optimization/             # Linear programming for contextual fraction
+│   ├── qft/                      # UDW qutrit detector state computation
+│   └── utils/                    # Operators, contexts, measurements, state checks
 ├── .gitignore
+├── CITATION.cff
 ├── LICENSE
-├── Makefile                    # Makefile for automated notebook generation and execution
+├── Makefile
 ├── README.md
 └── requirements.txt
 ```
 
 ## Citation
 
-If you use this code in your research, please cite the following paper:
- 
-> arXiv:  	arXiv:2508.15001
+If you use this code, please cite the paper:
 
+> Lima, C., Preciado-Rivas, M. R., & Srivastava, S. (2025). *Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors*. arXiv:2508.15001. <https://arxiv.org/abs/2508.15001>
+
+A machine-readable citation is available in [`CITATION.cff`](CITATION.cff).

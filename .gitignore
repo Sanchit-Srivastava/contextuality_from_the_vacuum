@@ -1,1 +1,5 @@
-/plots/output/
+/.venv/
+/plots/*
+!/plots/paper_plots.ipynb
+__pycache__/
+*.pyc
