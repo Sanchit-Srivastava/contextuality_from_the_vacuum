@@ -1,17 +1,12 @@
-# Contextuality from the Vacuum
+# Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors
 
-This repository contains the code to reproduce the plots in the paper [Contextuality from the vacuum](https://arxiv.org/abs/2508.15001).
+Code to reproduce the figures in [Lima, Preciado-Rivas & Srivastava (2025), *Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors*, arXiv:2508.15001](https://arxiv.org/abs/2508.15001).
 
-## Workflows
-
-There are two ways to reproduce the plots depending on your preference.
+## Reproducing the Plots
 
 ### Jupyter notebook
 
-`notebooks/paper_plots.ipynb` is a self-contained, reader-friendly notebook
-that generates all eight paper figures inline.  Each plot has its own
-markdown section explaining the physical setup and the parameter choices.
-Open it in JupyterLab or VS Code and run all cells:
+`notebooks/paper_plots.ipynb` generates all eight paper figures inline.
 
 ```bash
 git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
@@ -20,16 +15,13 @@ pip install -r requirements.txt
 jupyter lab notebooks/paper_plots.ipynb
 ```
 
-A pre-executed version of the notebook (with outputs included) is committed
-to the repository at each tagged release, so the plots can be browsed
-directly on GitHub or downloaded from the Zenodo archive without running any
-code.
+A pre-executed version with outputs is committed at each tagged release and is
+browsable on GitHub and the Zenodo archive.
 
 ### Command-line (Make)
 
-If you prefer to generate the plots as PDFs from the command line, a single
-Make target handles everything — it creates a virtual environment, installs
-dependencies, and writes all eight PDFs to `plots/output/`:
+`make plots` creates a virtual environment, installs dependencies, and writes
+all eight PDFs to `plots/output/`:
 
 ```bash
 git clone https://github.com/Sanchit-Srivastava/contextuality_from_the_vacuum.git
@@ -37,8 +29,7 @@ cd contextuality_from_the_vacuum
 make plots
 ```
 
-No LaTeX installation is required — matplotlib's built-in math rendering
-is used by default.
+LaTeX is not required; matplotlib's built-in math rendering is used by default.
 
 ## Makefile Targets
 
@@ -54,27 +45,17 @@ is used by default.
 | `make clean`        | Remove generated plots and notebook                  |
 | `make clean-all`    | Remove plots, notebook, and virtual environment      |
 
-### Selecting which plots to generate
-
-Both `make plots` and `make plots-latex` accept an optional `PLOTS` variable
-containing a space-separated list of plot names. Omitting it generates all
-plots.
+`make plots` and `make plots-latex` accept an optional `PLOTS` variable
+(space-separated plot names); omitting it generates all plots.
 
 ```bash
-# Generate all plots (default)
 make plots
-
-# Generate a single plot
 make plots PLOTS="cf_large"
-
-# Generate a subset
 make plots PLOTS="cf_large wigner_small cf_fixed_romega"
-
-# Same with LaTeX rendering
 make plots-latex PLOTS="cf_large wigner_small"
 ```
 
-Run `make list-plots` to see every available name.
+Run `make list-plots` to see all available names.
 
 ## Available Plots
 
@@ -89,25 +70,15 @@ Run `make list-plots` to see every available name.
 | `cf_fixed_romega`      | Fig 3(a)     | Contextual fraction, fixed RΩ=0.01, dΩ=20 (appendix C)  |
 | `wigner_fixed_romega`  | Fig 3(b)     | Wigner negativity, fixed RΩ=0.01, dΩ=20 (appendix C)    |
 
-## Generating Plots via the CLI Directly
+## CLI Script
 
-After running `make install`, the CLI script `scripts/plots.py` can be invoked
-directly for finer control:
+After `make install`, `scripts/plots.py` can be invoked directly:
 
 ```bash
-# List available plots
 .venv/bin/python scripts/plots.py --list
-
-# Generate a single plot
 .venv/bin/python scripts/plots.py --plot cf_large
-
-# Generate multiple specific plots
 .venv/bin/python scripts/plots.py --plot cf_large --plot wigner_large
-
-# Use LaTeX rendering
 .venv/bin/python scripts/plots.py --latex
-
-# Generate a Jupyter notebook instead of PDFs
 .venv/bin/python scripts/plots.py --format notebook
 ```
 
@@ -116,35 +87,28 @@ directly for finer control:
 - Python 3.8+
 - GNU Make
 
-Jupyter and LaTeX are **not** required for the default `make plots` target.
+Jupyter and LaTeX are not required for the default `make plots` target.
 
 ## Notebooks
 
-Two notebooks are included for different purposes.
+**`notebooks/paper_plots.ipynb`** — inline code for all eight figures with
+parameter details in each section's markdown header.
 
-**`notebooks/paper_plots.ipynb`** — the primary reader-facing notebook.
-It contains all eight plots with explicit inline code, so every parameter
-choice and computation is visible.  Each figure has a markdown section
-summarising the physics.  This is the recommended starting point for anyone
-who wants to understand or modify the plots.
-
-**`plots/paper_plots.ipynb`** — an auto-generated notebook produced by
-`make notebook`.  It calls into `scripts/plot_definitions.py` rather than
-containing explicit code, and is re-generated from scratch on each run.
-A pre-executed copy (with outputs) is committed to the repository at each
-tagged release for archival and Zenodo purposes.
+**`plots/paper_plots.ipynb`** — auto-generated by `make notebook`; calls into
+`scripts/plot_definitions.py` rather than containing explicit code. A
+pre-executed copy is committed at each tagged release for archival purposes.
 
 ## Repository Structure
 
 ```
 .
 ├── notebooks/
-│   └── paper_plots.ipynb         # Reader-friendly notebook: all 8 plots with explanations
+│   └── paper_plots.ipynb         # Inline notebook: all 8 plots
 ├── plots/
-│   └── paper_plots.ipynb         # Auto-generated notebook (make notebook); committed at release tags
+│   └── paper_plots.ipynb         # Auto-generated notebook (make notebook)
 ├── scripts/
 │   ├── plots.py                  # CLI entry point for plot generation
-│   ├── plot_definitions.py       # Plot functions (single source of truth)
+│   ├── plot_definitions.py       # Plot functions
 │   └── generate_notebook.py      # Generates plots/paper_plots.ipynb
 ├── src/
 │   ├── magic/                    # Wigner negativity / discrete Wigner function
@@ -160,6 +124,4 @@ tagged release for archival and Zenodo purposes.
 
 ## Citation
 
-If you use this code in your research, please cite the following paper:
-
-> Lima, C., Preciado-Rivas, M. R., & Srivastava, S. (2025). *Contextuality from the vacuum*. arXiv:2508.15001. https://arxiv.org/abs/2508.15001
+> Lima, C., Preciado-Rivas, M. R., & Srivastava, S. (2025). *Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors*. arXiv:2508.15001. https://arxiv.org/abs/2508.15001
