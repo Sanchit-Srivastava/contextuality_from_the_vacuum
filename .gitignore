@@ -1,5 +1,5 @@
 /.venv/
-/plots/
+/plots/*
 !/plots/paper_plots.ipynb
 __pycache__/
 *.pyc
