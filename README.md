@@ -1,4 +1,5 @@
 # Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors
+[![DOI](https://zenodo.org/badge/1110176799.svg)](https://doi.org/10.5281/zenodo.18896168)
 
 Code to reproduce the figures in [Lima, Preciado-Rivas & Srivastava (2025), *Contextuality from quantum field vacua using qutrit Unruh-DeWitt detectors*, arXiv:2508.15001](https://arxiv.org/abs/2508.15001).
 
